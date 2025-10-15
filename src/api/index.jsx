@@ -9,7 +9,7 @@ export * from "./coupons.jsx";
 export * from "./sales.jsx";
 
 // Hook opcional
-export function useApi() {
+export async function useApi() {
   // importaciones lazy para tree-shaking en bundlers modernos
   return {
     // http

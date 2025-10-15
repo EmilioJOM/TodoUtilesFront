@@ -13,8 +13,15 @@ export default function Nav({ onSearch, q, user }) {
 return (
 <div style={{ ...wrap, display: "flex", alignItems: "center", gap: 16, height: 64 }}>
 <a href="#/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-<div style={{ width: 28, height: 28, borderRadius: 8, background: palette.brand2 }}></div>
-<div style={{ fontWeight: 800, color: palette.ink, fontSize: 18 }}>Todo Útiles</div>
+  <img src="/logo definitivo chico.png" alt="Todo Útiles"
+    style={{
+      width: 30,
+      height: 30,
+      borderRadius: 1,
+      objectFit: "cover",     // evita deformaciones
+      display: "block"
+    }}
+  /><div style={{ fontWeight: 800, color: palette.ink, fontSize: 18 }}>Todo Útiles</div>
 </a>
 <div style={{ marginLeft: 24, display: "flex", gap: 18 }}>
         <A to="#/">Inicio</A>
