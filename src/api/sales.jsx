@@ -1,13 +1,10 @@
+// src/api/sales.jsx
 import { request } from "./http.jsx";
 
 // /ventas/**
 export const SalesAPI = {
-  list() {
-    return request(`/ventas`);
-  },
-  byUser(idUsuario) {
-    return request(`/ventas/${idUsuario}`);
-  },
+  list() { return request(`/ventas`); },
+  byUser(idUsuario) { return request(`/ventas/${idUsuario}`); },
   create({ idUsuario, total, metodoPago, idCupon }) {
     return request(`/ventas`, { method: "POST", query: { idUsuario, total, metodoPago, idCupon } });
   },
@@ -16,5 +13,11 @@ export const SalesAPI = {
       method: "POST",
       query: { idUsuario, total, metodoPago, codigoCupon },
     });
+  },
+  confirm({ metodoPago, codigoCupon }) {
+    return request(`/ventas/confirm`, { method: "PUT", query: { metodoPago, codigoCupon } });
+  },
+  cancel() {
+    return request(`/ventas/cancel`, { method: "PUT" });
   },
 };
