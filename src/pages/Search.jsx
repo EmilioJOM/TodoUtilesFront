@@ -78,10 +78,11 @@ const Search=({ store, queryFromNav })=>{
         }
         <select value={cat} onChange={(e) => setCat(e.target.value)} style={{ ...input, maxWidth: 200 }}>
           <option value="">Categorías</option>
-          {categories.map((c) => <option 
+          {Array.isArray(categories) && categories.map((c) => (<option 
           key={c.id} 
           value={c.description}>{c.description}
-          </option>)}
+          </option>
+          ))}
         </select>
 
         {//opcion para filtrar por precio maximo 
@@ -117,3 +118,4 @@ const Search=({ store, queryFromNav })=>{
 }
 
 export default Search
+
