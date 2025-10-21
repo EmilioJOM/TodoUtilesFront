@@ -1,43 +1,33 @@
 import React, { useState } from "react";
 import CenteredCard from "../components/CenteredCard.jsx";
 import { input, button, palette } from "../utils/styles.jsx";
+import { AuthAPI } from "../api/index.jsx";
 
 export default function Register({ setUser }) {
   const [f, setF] = useState({ name: "", last: "", email: "", pass: "", pass2: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const valid = f.name && f.email && f.pass && f.pass === f.pass2;
 
   const handleRegister = async () => {
     setError("");
-
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstname: f.name,
-          lastname: f.last,
-          email: f.email,
-          password: f.pass,
-        }),
+      const r = await AuthAPI.register({
+        firstname: f.name,
+        lastname: f.last,
+        email: f.email,
+        password: f.pass,
+        // role: "USER" // opcional, AuthAPI ya default "USER"
       });
-
-      if (!response.ok) {
-        setError("El registro falló. Verifica los datos.");
-        return;
-      }
-
-      const data = await response.json();
-      console.log("Registro exitoso:", data);
-
-      // Guarda el token si el backend lo devuelve
-      localStorage.setItem("token", data.token || "");
-
-      setUser({ name: f.name, email: f.email });
+      // AuthAPI setea el token (si r.access_token)
+      setUser({ name: f.name || f.email.split("@")[0] || "Usuario", email: f.email });
       window.location.hash = "#/";
-    } catch (err) {
-      console.error(err);
-      setError("El registro falló. Intenta nuevamente.");
+    } catch (e) {
+      setError(e?.message || "El registro falló. Verifica los datos.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,23 +72,14 @@ export default function Register({ setUser }) {
         onChange={(e) => setF({ ...f, pass2: e.target.value })}
       />
 
-      {error && (
-        <div style={{ color: "red", fontSize: 13, marginTop: 8 }}>
-          {error}
-        </div>
-      )}
+      {error && <div style={{ color: "red", fontSize: 13, marginTop: 8 }}>{error}</div>}
 
       <button
-        disabled={!valid}
-        style={{
-          ...button(true),
-          width: "100%",
-          marginTop: 12,
-          opacity: valid ? 1 : 0.6,
-        }}
+        disabled={!valid || loading}
+        style={{ ...button(true), width: "100%", marginTop: 12, opacity: valid && !loading ? 1 : 0.6 }}
         onClick={handleRegister}
       >
-        Registrarse
+        {loading ? "Creando…" : "Registrarse"}
       </button>
 
       <div style={{ fontSize: 13, marginTop: 10, color: palette.muted }}>
