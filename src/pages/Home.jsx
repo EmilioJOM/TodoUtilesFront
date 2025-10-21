@@ -10,7 +10,7 @@ const Home=({store}) =>{
   const [productCards, setProductCards] = useState([]);
   const [categories, setCategories]=useState([]);
 
-  //NECESITO UNA URL PARA ACCEDER A TODOS LOS PRODUCTOS, NO SOLO EL QUE PASO POR ID
+  //NECESITO UNA URL PARA ACCEDER A TODOS LOS PRODUCTOS, NO SOLO EL QUE PASO POR ID -- ESTO ESTA MAL POR AHORA
   const URL_PRODUCTOS='http://127.0.0.1:4002/api/productos/{id}'
   const URL_CATEGORIAS='http://127.0.0.1:4002/categories'
 
