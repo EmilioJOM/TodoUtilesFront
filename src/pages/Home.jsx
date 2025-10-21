@@ -7,11 +7,13 @@ import { useEffect, useState } from "react";
 
 const Home=({store}) =>{
 
-  const [productCards, setProductCards] = useState([]);
+  const [products, setProducts] = useState([]);
   const [categories, setCategories]=useState([]);
 
-  //NECESITO UNA URL PARA ACCEDER A TODOS LOS PRODUCTOS, NO SOLO EL QUE PASO POR ID -- ESTO ESTA MAL POR AHORA
-  const URL_PRODUCTOS='http://127.0.0.1:4002/api/productos/{id}'
+  //La URL accede a todos los productos
+  const URL_PRODUCTOS='http://127.0.0.1:4002/api/productos'
+  
+  //accede a todas las categorias
   const URL_CATEGORIAS='http://127.0.0.1:4002/categories'
 
   //obtengo todos los productos
@@ -19,7 +21,7 @@ const Home=({store}) =>{
     fetch(URL_PRODUCTOS)  
       .then((response) => response.json()) 
       .then((data) => {
-        setProductCards(data); 
+        setProducts(data); 
       })
       .catch((error) => { 
         console.error("Error al obtener los datos: ", error);
@@ -46,10 +48,10 @@ const Home=({store}) =>{
       <Section title="Nuestros productos" link={<a href="#/search">Ver todo</a>}>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
 
-          {productCards.slice(0,5).map((card) => ( //tengo que mapear el estado asi que uso map
+          {products.slice(0,5).map((p) => ( //tengo que mapear el estado asi que uso map
           <ProductCard
-            key={card.id} //map SIEMPRE necesita una key para funcionar
-            product={card}
+            key={p.id} //map SIEMPRE necesita una key para funcionar
+            product={p}
             onAdd={store.add}
           />
         ))}
