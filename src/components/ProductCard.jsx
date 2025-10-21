@@ -2,9 +2,10 @@ import React from "react";
 import { card, button, palette } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
 
+const ProductCard=({ product, onAdd })=>{
 
-export default function ProductCard({ product, onAdd }) {
-return (
+
+    return (
 <div style={{ ...card, padding: 12, width: 220 }}>
 <div style={{ height: 120, borderRadius: 12, background: "#e2e8f0", marginBottom: 10 }} />
 <div style={{ fontWeight: 700 }}>{product.name}</div>
@@ -15,4 +16,11 @@ return (
 </div>
 </div>
 );
+
 }
+
+export default ProductCard
+
+
+
+ 

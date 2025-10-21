@@ -3,7 +3,7 @@ import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { getProducts, getCategories } from "../utils/dataAPI.jsx";
 
-export default function Search({ store, queryFromNav }) {
+const Search=({ store, queryFromNav })=>{
   const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
   const startQ = params.get("q") || "";
   const startCat = params.get("cat") || "";
@@ -46,3 +46,5 @@ export default function Search({ store, queryFromNav }) {
     </div>
   );
 }
+
+export default Search
