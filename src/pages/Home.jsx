@@ -11,10 +11,10 @@ const Home=({store}) =>{
   const [categories, setCategories]=useState([]);
 
   //La URL accede a todos los productos
-  const URL_PRODUCTOS='http://127.0.0.1:4002/api/productos'
+  const URL_PRODUCTOS='http://localhost:4002/api/productos'
   
   //accede a todas las categorias
-  const URL_CATEGORIAS='http://127.0.0.1:4002/categories'
+  const URL_CATEGORIAS='http://localhost:4002/categories'
 
   //obtengo todos los productos
   useEffect(() => {
@@ -30,15 +30,16 @@ const Home=({store}) =>{
 
   //obtengo las categorias
   useEffect(() => {
-    fetch(URL_CATEGORIAS)  
-      .then((response) => response.json()) 
-      .then((data) => {
-        setCategories(data); 
-      })
-      .catch((error) => { 
-        console.error("Error al obtener los datos: ", error);
-      });
-  }, []);
+  fetch(URL_CATEGORIAS)
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Categorías recibidas:", data); // para chequear la estructura
+      setCategories(Array.isArray(data) ? data : data.categories || []);
+    })
+    .catch((error) => {
+      console.error("Error al obtener las categorías: ", error);
+    });
+}, []);
 
 
   return (

@@ -15,8 +15,8 @@ const Search=({ store, queryFromNav })=>{
   const [categories, setCategories]=useState([]);
 
   //URL que accede a todos los productos
-  const URL_PRODUCTOS='http://127.0.0.1:4002/api/productos'
-  const URL_CATEGORIAS='http://127.0.0.1:4002/categories'
+  const URL_PRODUCTOS='http://localhost:4002/api/productos'   
+  const URL_CATEGORIAS='http://localhost:4002/categories'     
 
   //obtengo todos los productos
   useEffect(() => {
@@ -32,15 +32,16 @@ const Search=({ store, queryFromNav })=>{
 
   //obtengo las categorias
   useEffect(() => {
-    fetch(URL_CATEGORIAS)  
-      .then((response) => response.json()) 
-      .then((data) => {
-        setCategories(data); 
-      })
-      .catch((error) => { 
-        console.error("Error al obtener categorías: ", error);
-      });
-  }, []);
+  fetch(URL_CATEGORIAS)
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Categorías recibidas:", data);
+      setCategories(Array.isArray(data) ? data : data.categories || []);
+    })
+    .catch((error) => {
+      console.error("Error al obtener las categorías: ", error);
+    });
+}, []);
   
   const list = useMemo( //creo una lista con los productos filtrados
     () =>
@@ -53,9 +54,9 @@ const Search=({ store, queryFromNav })=>{
 
         const inMax = !maxPrice || (!isNaN(max) && price <= max);
 
-        return inCategory && inQuery && inMin && inMax; //devuelve lo que cumpla con todos los filtros que se ingresaron
+        return inCategory && inQuery && inMax; //devuelve lo que cumpla con todos los filtros que se ingresaron
       }),
-      [q, cat, minPrice, maxPrice, products]
+      [q, cat, maxPrice, products]
     );
 
 

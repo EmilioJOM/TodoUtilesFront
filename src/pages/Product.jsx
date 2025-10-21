@@ -3,10 +3,10 @@ import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
 
-
+//NO LA PUDE PROBAR (mas o menos) PORQUE HAY PRODUCTOS CARGADOS TODAVIA
 const Product=({store,id})=>{ //FALTA LO DE LAS IMAGENES
   
-  const URL = `http://127.0.0.1:4002/api/productos/${id}`;
+  const URL = `http://localhost:4002/api/productos/${id}`;
 
   const [product, setProduct] = useState();
   
@@ -17,6 +17,7 @@ const Product=({store,id})=>{ //FALTA LO DE LAS IMAGENES
     .then((data) => setProduct(data))
     .catch((error) => console.error("Error:", error));
   }, [id]);
+
 
   const [qty, setQty] = useState(1);
   if (!product) return <div style={{ ...wrap, marginTop: 24 }}>Producto no encontrado.</div>;
