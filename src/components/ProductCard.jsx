@@ -35,12 +35,7 @@ const ProductCard = ({ product, onAdd }) => {
         >
           Ver
         </a>
-        <button
-          style={{ ...button(true), padding: "8px 12px" }}
-          onClick={() => onAdd(product.id)}
-        >
-          Agregar
-        </button>
+
       </div>
     </div>
   );
