@@ -5,7 +5,7 @@ import { currency } from "../utils/Format.jsx";
 const ProductCard = ({ product, onAdd }) => {
 
     //estoy asumiendo que los productos tienen una lista de URLs de imagenes
-  const imageUrl = product.images?.[0] || "public\imagenPlaceholder.jpg";
+  const imageUrl = product.images?.[0] || "/imagenPlaceholder.jpg";
 
   return ( 
     
