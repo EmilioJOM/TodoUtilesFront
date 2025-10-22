@@ -7,7 +7,12 @@ const A = ({ to, children, title, style }) => (
   <a
     href={to}
     title={title}
-    style={{ color: palette.ink, textDecoration: "none", fontWeight: 600, ...style }}
+    style={{
+      color: palette.ink,
+      textDecoration: "none",
+      fontWeight: 600,
+      ...style,
+    }}
   >
     {children}
   </a>
@@ -16,14 +21,14 @@ const A = ({ to, children, title, style }) => (
 export default function Nav({ onSearch, q }) {
   const { user, isAdmin, logout } = useStore();
   const admin = isAdmin();
-
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   // Cerrar el menú al hacer click fuera
   useEffect(() => {
     const onDocClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target))
+        setMenuOpen(false);
     };
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
@@ -36,21 +41,46 @@ export default function Nav({ onSearch, q }) {
   };
 
   return (
-    <div style={{ ...wrap, display: "flex", alignItems: "center", gap: 16, height: 64 }}>
-      <a href="#/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+    <div
+      style={{
+        ...wrap,
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        height: 64,
+      }}
+    >
+      {/* Logo */}
+      <a
+        href="#/"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          textDecoration: "none",
+        }}
+      >
         <img
           src="/logo definitivo chico.png"
           alt="Todo Útiles"
-          style={{ width: 30, height: 30, borderRadius: 1, objectFit: "cover", display: "block" }}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 1,
+            objectFit: "cover",
+            display: "block",
+          }}
         />
-        <div style={{ fontWeight: 800, color: palette.ink, fontSize: 18 }}>Todo Útiles</div>
+        <div style={{ fontWeight: 800, color: palette.ink, fontSize: 18 }}>
+          Todo Útiles
+        </div>
       </a>
 
+      {/* Menú principal */}
       <div style={{ marginLeft: 24, display: "flex", gap: 18 }}>
         <A to="#/">Inicio</A>
         <A to="#/search">Productos</A>
         <A to="#/about">Contacto</A>
-
         {/* Solo visible si el usuario es ADMIN */}
         {admin && (
           <>
@@ -61,10 +91,40 @@ export default function Nav({ onSearch, q }) {
         )}
       </div>
 
-      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-        <SearchBox value={q} onChange={onSearch} />
-        <A to="#/cart" title="Carrito">🛒</A>
+      {/* Barra derecha: search, carrito y usuario */}
+      <div
+        style={{
+          marginLeft: "auto",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        
+        <div style={{ flexShrink: 1 }}>
+          <SearchBox value={q} onChange={onSearch} />
+        </div>
 
+        <div> 
+        <A
+          to="#/cart"
+          title="Carrito"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 36,
+            height: 36,
+            borderRadius: 6,
+            background: "#eee",
+            fontSize: 18,
+            cursor: "pointer",
+            flexShrink: 0, // <--- CAMBIO CLAVE: evita que el botón se achique
+          }}
+        >
+          🛒
+        </A>
+        </div>
         {/* Menú de usuario */}
         {user ? (
           <div ref={menuRef} style={{ position: "relative" }}>
@@ -99,7 +159,9 @@ export default function Nav({ onSearch, q }) {
                   zIndex: 1000,
                 }}
               >
-                <A to="#/account" style={{ display: "block", padding: "8px 10px" }}>Mi cuenta</A>
+                <A to="#/account" style={{ display: "block", padding: "8px 10px" }}>
+                  Mi cuenta
+                </A>
                 <button
                   onClick={handleLogout}
                   role="menuitem"

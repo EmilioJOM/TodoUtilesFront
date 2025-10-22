@@ -29,7 +29,7 @@ boxShadow: filled ? "0 6px 16px rgba(29,78,216,0.25)" : "none",
 
 
 export const input = {
-width: "100%",
+width: "80%",
 padding: "12px 14px",
 borderRadius: 12,
 border: `1px solid ${palette.border}`,
