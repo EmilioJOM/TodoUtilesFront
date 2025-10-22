@@ -3,12 +3,14 @@ import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
 
-//NO LA PUDE PROBAR (mas o menos) PORQUE HAY PRODUCTOS CARGADOS TODAVIA
-const Product=({store,id})=>{ //FALTA LO DE LAS IMAGENES
+
+const Product=({store,id})=>{ 
   
   const URL = `http://localhost:4002/api/productos/${id}`;
 
   const [product, setProduct] = useState();
+
+  const [mainImage, setMainImage] = useState(0);
   
   //Obtengo el producto
   useEffect(() => {
@@ -24,12 +26,48 @@ const Product=({store,id})=>{ //FALTA LO DE LAS IMAGENES
   return (
     <div style={{ ...wrap, marginTop: 8, display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24 }}>
       <div style={{ ...card, padding: 16, minHeight: 340 }}>
-        <div style={{ height: 300, borderRadius: 12, background: "#e2e8f0" }} />
-        <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-          <div style={{ flex: 1, height: 70, borderRadius: 10, background: "#cbd5e1" }} />
-          <div style={{ flex: 1, height: 70, borderRadius: 10, background: "#cbd5e1" }} />
-          <div style={{ flex: 1, height: 70, borderRadius: 10, background: "#e5e7eb", display: "grid", placeItems: "center" }}>+</div>
-        </div>
+
+        {//Imagen grande
+        }
+      <img
+        src={
+          product.images?.length > 0
+            ? product.images[mainImage]
+            : "public\imagenPlaceholder.jpg"
+        }
+        alt={product.description}
+        style={{ height: 300, width: "100%", objectFit: "cover", borderRadius: 12 }}
+      />
+
+      {//imagenes chiquitas
+      }
+      <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+        {product.images?.length > 1 && (
+          <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+            {product.images.slice(0, 3).map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`Miniatura ${idx + 1}`}
+                onClick={() => setMainImage(idx)}
+                style={{
+                  flex: 1,
+                  height: 70,
+                  borderRadius: 10,
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  border: mainImage === idx ? "2px solid #3b82f6" : "none"
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+      </div>
+
+
+      {//informacion del producto
+      }
       </div>
       <div style={{ ...card, padding: 16 }}>
         <h1 style={{ margin: 0 }}>{product.description}</h1>
