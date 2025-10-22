@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { AuthAPI } from "../api/index.jsx";
 import { getToken } from "../api/http.jsx";
+import { CartAPI } from "../api/cart.jsx";
 
 // Decodifica el JWT por si hace falta completar datos
 const makeUserFromJwt = (jwt) => {
@@ -21,6 +22,49 @@ const normalizeRole = (r) =>
 
 const useStore = create((set, get) => ({
   user: null,
+
+  // --- 🛒 sincronización con backend ---
+  loadCart: async () => {
+    try {
+      const cart = await CartAPI.getOrCreate();
+      const products = await CartAPI.listProducts();
+
+      const subtotal = (products || []).reduce(
+        (acc, p) => acc + (p.price || 0) * (p.quantity || 0),
+        0
+      );
+
+      set({
+        items: products || [],
+        subtotal,
+        total: subtotal, // o podés sumar envío, impuestos, etc.
+        discount: 0,
+        coupon: "",
+      });
+    } catch (err) {
+      console.error("Error cargando carrito:", err);
+    }
+  },
+
+  addToCart: async (productId, quantity = 1) => {
+    await CartAPI.add(productId, quantity);
+    await get().loadCart();
+  },
+
+  updateCartItem: async (productId, quantity) => {
+    await CartAPI.update(productId, quantity);
+    await get().loadCart();
+  },
+
+  removeFromCart: async (productId) => {
+    await CartAPI.remove(productId);
+    await get().loadCart();
+  },
+
+  purchaseCart: async () => {
+    await CartAPI.purchase();
+    await get().loadCart(); // crea un carrito nuevo vacío
+  },
 
   hydrate: async () => {
     const jwt = getToken();
