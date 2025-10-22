@@ -119,7 +119,7 @@ export default function Nav({ onSearch, q }) {
             background: "#eee",
             fontSize: 18,
             cursor: "pointer",
-            flexShrink: 0, // <--- CAMBIO CLAVE: evita que el botón se achique
+            flexShrink: 0, 
           }}
         >
           🛒

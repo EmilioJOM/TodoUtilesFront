@@ -21,7 +21,7 @@ export default function Cart() {
         gap: 24,
       }}
     >
-      {/* Lista de productos */}
+    
       <div style={{ ...card }}>
         <div style={{ padding: 16, borderBottom: `1px solid ${palette.border}` }}>
           <h2 style={{ margin: 0 }}>Carrito de Compras</h2>
@@ -41,12 +41,12 @@ export default function Cart() {
                 alignItems: "center",
               }}
             >
-              {/* Descripción del producto */}
+            
               <div>
                 <div style={{ fontWeight: 700 }}>{p.description}</div>
               </div>
 
-              {/* Cantidad con botones + / - */}
+            
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <button
                         onClick={() => store.updateCartItem(p.productId, -1)}
@@ -65,12 +65,12 @@ export default function Cart() {
                     </button>
                 </div>
 
-              {/* Precio total del producto */}
+            
               <div style={{ fontWeight: 700 }}>
                 {currency((p.price || 0) * (p.quantity || 1))}
               </div>
 
-              {/* Botón eliminar */}
+            
               <button
                 onClick={() => store.removeFromCart(p.productId)}
                 style={button(false)}
@@ -82,7 +82,7 @@ export default function Cart() {
         )}
       </div>
 
-      {/* Resumen del pedido */}
+
       <div style={{ ...card, padding: 16, height: "fit-content" }}>
         <h3 style={{ marginTop: 0 }}>Resumen del Pedido</h3>
         <div
