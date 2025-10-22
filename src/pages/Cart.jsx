@@ -2,7 +2,6 @@ import React from "react";
 import { wrap, card, input, button, palette } from "../utils/styles.jsx";
 import Row from "../components/Row.jsx";
 import { currency } from "../utils/Format.jsx";
-import { COUPON } from "../store/UseStore.jsx";
 
 export default function Cart({ store }) {
 return (

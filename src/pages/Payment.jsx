@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { wrap, card, input, button, palette } from "../utils/styles.jsx";
 import { CartAPI, SalesAPI } from "../api/index.jsx"; // 👈 usa el cliente real
-import { COUPON } from "../store/UseStore.jsx";
 
 export default function Payment({ store }) {
   const [ok, setOk] = useState(false);

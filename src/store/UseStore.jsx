@@ -1,46 +1,68 @@
-import { useEffect, useMemo, useState } from "react";
-import { getProducts, findCoupon } from "../utils/dataAPI.jsx";
+import { create } from "zustand";
+import { AuthAPI } from "../api/index.jsx";
+import { getToken } from "../api/http.jsx";
 
-// Cupón de demo previo: se mantiene como fallback
-const COUPON_FALLBACK = { code: "CUPONAZO24", percent: 15 };
+// Decodifica el JWT por si hace falta completar datos
+const makeUserFromJwt = (jwt) => {
+  try {
+    const [, payload] = jwt.split(".");
+    const data = JSON.parse(atob(payload));
+    return {
+      email: data.sub || null,
+      name: data.sub?.split("@")[0] || "Usuario",
+      // si también agregaste "role" como claim en el token, lo tomamos
+      role: typeof data.role === "string" ? data.role.toUpperCase() : null,
+    };
+  } catch { return null; }
+};
 
-export default function useStore() {
-  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("tu_cart") || "[]"));
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("tu_user") || null));
-  const [coupon, setCoupon] = useState(() => localStorage.getItem("tu_coupon") || "");
+const normalizeRole = (r) =>
+  typeof r === "string" ? r.toUpperCase() : null;
 
-  useEffect(() => localStorage.setItem("tu_cart", JSON.stringify(cart)), [cart]);
-  useEffect(() => localStorage.setItem("tu_user", JSON.stringify(user)), [user]);
-  useEffect(() => localStorage.setItem("tu_coupon", coupon), [coupon]);
+const useStore = create((set, get) => ({
+  user: null,
 
-  const add = (id, qty = 1) =>
-    setCart((c) => {
-      const found = c.find((i) => i.id === id);
-      if (found) return c.map((i) => (i.id === id ? { ...i, qty: Math.max(1, i.qty + qty) } : i));
-      return [...c, { id, qty }];
-    });
+  hydrate: async () => {
+    const jwt = getToken();
+    if (!jwt) return;
+    const u = makeUserFromJwt(jwt);
+    if (u) set({ user: u });
+  },
 
-  const setQty = (id, qty) => setCart((c) => c.map((i) => (i.id === id ? { ...i, qty: Math.max(1, qty) } : i)));
-  const remove = (id) => setCart((c) => c.filter((i) => i.id !== id));
-  const clear = () => setCart([]);
+  // login({ email, password }) -> usa lo que devuelve el backend y completa con JWT/form
+  login: async ({ email, password }) => {
+    const r = await AuthAPI.login({ email, password }); // setToken ya ocurre adentro
+    const fromJwt = r?.access_token ? makeUserFromJwt(r.access_token) : null;
+    const user = {
+      // preferí los campos que te manda el backend
+      name: r?.firstName || fromJwt?.name || email.split("@")[0] || "Usuario",
+      email: fromJwt?.email || email,
+      role: normalizeRole(r?.role) || fromJwt?.role || null,
+    };
+    set({ user });
+    return user;
+  },
 
-  const products = getProducts();
-  const items = useMemo(() => cart.map((i) => ({ ...i, product: products.find((p) => p.id === i.id) })), [cart, products]);
+  // register(form) -> idem login
+  register: async ({ firstname, lastname, email, password, role = "USER" }) => {
+    const r = await AuthAPI.register({ firstname, lastname, email, password, role }); // setToken ya ocurre
+    const fromJwt = r?.access_token ? makeUserFromJwt(r.access_token) : null;
+    const user = {
+      name: r?.firstName || firstname || fromJwt?.name || "Usuario",
+      email: fromJwt?.email || email,
+      role: normalizeRole(r?.role) || fromJwt?.role || null,
+    };
+    set({ user });
+    return user;
+  },
 
-  const subtotal = items.reduce((s, i) => s + (i.product?.price || 0) * i.qty, 0);
+  logout: () => {
+    // borra token y usuario
+    AuthAPI.logout();
+    set({ user: null });
+  },
 
-  // cupones: primero buscar en admin, luego fallback
-  let couponPercent = 0;
-  const adminCoupon = findCoupon(coupon);
-  if (adminCoupon) couponPercent = adminCoupon.percent;
-  else if (coupon === COUPON_FALLBACK.code) couponPercent = COUPON_FALLBACK.percent;
+  isAdmin: () => get().user?.role === "ADMIN",
+}));
 
-  const discount = subtotal * (couponPercent / 100);
-  const taxes = subtotal > 0 ? subtotal * 0.08 : 0;
-  const shipping = subtotal > 0 ? 0 : 0;
-  const total = Math.max(0, subtotal - discount + taxes + shipping);
-
-  return { cart, add, setQty, remove, clear, items, subtotal, discount, taxes, shipping, total, coupon, setCoupon, user, setUser };
-}
-
-export { COUPON_FALLBACK as COUPON };
+export default useStore;

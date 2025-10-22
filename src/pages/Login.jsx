@@ -1,21 +1,20 @@
 import React, { useState } from "react";
 import CenteredCard from "../components/CenteredCard.jsx";
 import { input, button, palette } from "../utils/styles.jsx";
-import { AuthAPI } from "../api/index.jsx";
+import useStore from "../store/UseStore.jsx";
 
-export default function Login({ setUser }) {
+export default function Login() {
   const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
+  const [pass, setPass]   = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const store = useStore();
+
   const handleLogin = async () => {
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
-      const r = await AuthAPI.login({ email, password: pass });
-      // AuthAPI ya guarda el token si viene en r.access_token
-      setUser({ name: email.split("@")[0] || "Usuario", email });
+      await store.login({ email, password: pass });
       window.location.hash = "#/";
     } catch (e) {
       setError(e?.message || "Usuario o contraseña incorrecta");
@@ -40,11 +39,7 @@ export default function Login({ setUser }) {
         onChange={(e) => setPass(e.target.value)}
       />
 
-      {error && (
-        <div style={{ color: "red", fontSize: 13, marginTop: 8 }}>
-          {error}
-        </div>
-      )}
+      {error && <div style={{ color: "red", fontSize: 13, marginTop: 8 }}>{error}</div>}
 
       <a
         href="#/forgot"

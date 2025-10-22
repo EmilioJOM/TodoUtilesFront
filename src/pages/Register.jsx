@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import CenteredCard from "../components/CenteredCard.jsx";
 import { input, button, palette } from "../utils/styles.jsx";
-import { AuthAPI } from "../api/index.jsx";
+import useStore from "../store/UseStore.jsx";
 
-export default function Register({ setUser }) {
+export default function Register() {
   const [f, setF] = useState({ name: "", last: "", email: "", pass: "", pass2: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const valid = f.name && f.email && f.pass && f.pass === f.pass2;
 
+  const store = useStore();
   const handleRegister = async () => {
     setError("");
     setLoading(true);
     try {
-      const r = await AuthAPI.register({
+      await store.register({
         firstname: f.name,
         lastname: f.last,
         email: f.email,
@@ -22,7 +23,6 @@ export default function Register({ setUser }) {
         // role: "USER" // opcional, AuthAPI ya default "USER"
       });
       // AuthAPI setea el token (si r.access_token)
-      setUser({ name: f.name || f.email.split("@")[0] || "Usuario", email: f.email });
       window.location.hash = "#/";
     } catch (e) {
       setError(e?.message || "El registro falló. Verifica los datos.");
