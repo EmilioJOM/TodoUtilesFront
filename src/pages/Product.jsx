@@ -85,7 +85,7 @@ const Product=({store,id})=>{
           <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={button(false)}>-</button>
           <div style={{ ...input, width: 60, textAlign: "center" }}>{qty}</div>
           <button onClick={() => setQty((q) => q + 1)} style={button(false)}>+</button>
-          <button onClick={() => { store.add(product.id, qty); window.location.hash = "#/cart"; }} style={button(true)}>
+          <button onClick={() => { store.addToCart(product.id, qty);}} style={button(true)}>
             🛒 Agregar al carrito
           </button>
         </div>

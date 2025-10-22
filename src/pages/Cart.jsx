@@ -108,7 +108,7 @@ export default function Cart() {
         </div>
 
         <button
-          onClick={() => store.purchaseCart()}
+          onClick={() => {store.purchaseCart(); window.location.hash = "#/payment";}}
           style={{
             ...button(true),
             display: "block",
