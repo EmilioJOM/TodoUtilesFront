@@ -26,9 +26,18 @@ export const ProductsAPI = {
   changePrice({ id, price }) {
     return request(`/api/productos/change-price`, { method: "POST", query: { id, price } });
   },
+
+  // Opción 1: usa el endpoint clásico con @RequestParam("file")
   uploadImage({ id, file }) {
-    const form = new FormData();
-    form.append("file", file);
-    return request(`/api/productos/${id}/imagen`, { method: "POST", data: form, isForm: true });
+    const fd = new FormData();
+    fd.append("file", file);
+    return request(`/api/productos/${id}/imagen`, { method: "POST", data: fd, isForm: true });
+  },
+
+  // Opción 2: usa el endpoint v2 con @RequestPart("file")
+  uploadImagev2({ id, file }) {
+    const fd = new FormData();
+    fd.append("file", file); // el nombre debe coincidir con @RequestPart("file")
+    return request(`/api/productos/${id}/imagen/v2`, { method: "POST", data: fd, isForm: true });
   },
 };
