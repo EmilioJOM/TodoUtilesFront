@@ -13,6 +13,7 @@ success: "#059669",
 export const wrap = { maxWidth: 1200, margin: "0 auto", padding: "0 16px" };
 
 
+
 export const appBg = { background: palette.bg, minHeight: "100vh", color: palette.ink };
 
 

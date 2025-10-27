@@ -41,6 +41,7 @@ export default function Nav({ onSearch, q }) {
   };
 
   return (
+    <nav className="barraNavegacion">
     <div
       style={{
         ...wrap,
@@ -116,13 +117,30 @@ export default function Nav({ onSearch, q }) {
             width: 36,
             height: 36,
             borderRadius: 6,
-            background: "#eee",
             fontSize: 18,
             cursor: "pointer",
             flexShrink: 0, 
           }}
         >
-          🛒
+            <span class="cart-icon">
+              <svg
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle r="1" cy="21" cx="9"></circle>
+                <circle r="1" cy="21" cx="20"></circle>
+                <path
+                  d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                ></path>
+              </svg>
+            </span>
         </A>
         </div>
         {/* Menú de usuario */}
@@ -185,6 +203,7 @@ export default function Nav({ onSearch, q }) {
           <A to="#/login">Iniciar sesión</A>
         )}
       </div>
-    </div>
+      </div>
+    </nav>
   );
 }

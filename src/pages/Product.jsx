@@ -4,6 +4,7 @@ import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
 import { ProductsAPI } from "../api/index.jsx"; // <-- Agregar esta importación
+import "./Product.css";
 
 const Product = ({ store, id }) => {
   const URL = `http://localhost:4002/api/productos/${id}`;
@@ -107,14 +108,50 @@ const Product = ({ store, id }) => {
         </div>
 
         {/* Compra */}
-        <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-          <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={button(false)}>-</button>
-          <div style={{ ...input, width: 60, textAlign: "center" }}>{qty}</div>
-          <button onClick={() => setQty((q) => q + 1)} style={button(false)}>+</button>
-          <button onClick={() => { store.addToCart(product.id, qty); }} style={button(true)}>
-            🛒 Agregar al carrito
-          </button>
-        </div>
+<div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center" }}>
+  <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={button(false)}>
+    -
+  </button>
+  <div style={{ ...input, width: 60, textAlign: "center" }}>{qty}</div>
+  <button onClick={() => setQty((q) => q + 1)} style={button(false)}>
+    +
+  </button>
+
+  <input hidden className="cart-toggle" id={`cart-toggle-${product.id}`} type="checkbox" />
+  <label
+    className="cart-button"
+    htmlFor={`cart-toggle-${product.id}`}
+    onClick={() => {
+      store.addToCart(product.id, qty);
+
+      const checkbox = document.getElementById(`cart-toggle-${product.id}`);
+      checkbox.checked = true;
+      setTimeout(() => {
+        checkbox.checked = false;
+      }, 1500);
+    }}
+  >
+    <span className="cart-icon">
+      <svg
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        strokeWidth="2"
+        stroke="currentColor"
+        fill="none"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle r="1" cy="21" cx="9"></circle>
+        <circle r="1" cy="21" cx="20"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+    </span>
+    Agregar al carrito
+    <div className="progress-bar"></div>
+  </label>
+</div>
 
         {/* ⬇️ NUEVO: Panel ADMIN */}
         {isAdmin && (

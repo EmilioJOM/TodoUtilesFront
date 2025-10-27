@@ -16,7 +16,7 @@ import useStore from "./store/UseStore.jsx";
 import AdminCreate from "./pages/AdminCreate.jsx";
 import Sales from "./pages/Sales.jsx";
 import Coupons from "./pages/Coupons.jsx";
-
+import "./App.css";
 
 
 
@@ -62,9 +62,11 @@ return <div style={{ padding: 24 }}>Página no encontrada.</div>;
 
 return (
 <div style={appBg}>
-<Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
-{page}
-<Footer />
+    <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
+    <div style={{ paddingTop: 64 }}> 
+        {page}
+        <Footer />
+    </div>
 </div>
 );
 }
