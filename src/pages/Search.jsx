@@ -138,7 +138,9 @@ const Search = ({ store, queryFromNav }) => {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))",
-          gap: 16,
+            gap: "16px", 
+            padding: "20px", 
+            justifyItems: "center", 
         }}
       >
         {list.map((p) => ( //muestro los productos que se filtraron antes, en ProductCard's
