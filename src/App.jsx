@@ -24,7 +24,7 @@ import "./App.css";
 export default function App() {
 const route = useHashRoute();
 const store = useStore();
-useEffect(() => { store.hydrate(); }, []);
+useEffect(() => { store.hydrate(); store.loadCart(); }, []);
 const [navQuery, setNavQuery] = useState("");
 
 

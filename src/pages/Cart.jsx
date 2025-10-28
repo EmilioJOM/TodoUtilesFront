@@ -50,7 +50,7 @@ export default function Cart() {
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <button
                         onClick={() => store.updateCartItem(p.productId, -1)}
-                        disabled={p.quantity <= 1} // no permitir cantidad < 1
+                        disabled={p.quantity <= 1} 
                         style={button(false)}
                     >
                         -
@@ -58,7 +58,7 @@ export default function Cart() {
                     <span style={{ width: 30, textAlign: "center" }}>{p.quantity}</span>
                     <button
                         onClick={() => store.updateCartItem(p.productId, +1)}
-                        disabled={p.quantity >= p.stock} // ✅ deshabilitado si llegamos al stock
+                        disabled={p.quantity >= p.stock} 
                         style={button(false)}
                     >
                         +
@@ -108,16 +108,28 @@ export default function Cart() {
         </div>
 
         <button
-          onClick={() => {store.purchaseCart(); window.location.hash = "#/payment";}}
+          onClick={() => {
+            store.purchaseCart();
+            window.location.hash = "#/shipping";
+          }}
+          disabled={items.length === 0} 
           style={{
             ...button(true),
             display: "block",
             textAlign: "center",
             marginTop: 16,
+            opacity: items.length === 0 ? 0.6 : 1, 
+            cursor: items.length === 0 ? "not-allowed" : "pointer",
           }}
         >
           Confirmar Carrito
         </button>
+
+        {items.length === 0 && (
+          <div style={{ color: "red", marginTop: 8, textAlign: "start", fontSize: 13 }}>
+            No hay productos en el carrito.
+            </div>
+        )}
       </div>
     </div>
   );

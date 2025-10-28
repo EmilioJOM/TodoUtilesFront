@@ -3,7 +3,7 @@ import { AuthAPI } from "../api/index.jsx";
 import { getToken } from "../api/http.jsx";
 import { CartAPI } from "../api/cart.jsx";
 
-// Decodifica el JWT por si hace falta completar datos
+
 const makeUserFromJwt = (jwt) => {
   try {
     const [, payload] = jwt.split(".");
@@ -11,7 +11,6 @@ const makeUserFromJwt = (jwt) => {
     return {
       email: data.sub || null,
       name: data.sub?.split("@")[0] || "Usuario",
-      // si también agregaste "role" como claim en el token, lo tomamos
       role: typeof data.role === "string" ? data.role.toUpperCase() : null,
     };
   } catch { return null; }
@@ -22,8 +21,9 @@ const normalizeRole = (r) =>
 
 const useStore = create((set, get) => ({
   user: null,
+  cartCount: 0,
 
-  // --- 🛒 sincronización con backend ---
+
   loadCart: async () => {
     try {
       const cart = await CartAPI.getOrCreate();
@@ -34,12 +34,18 @@ const useStore = create((set, get) => ({
         0
       );
 
+      const totalItems = (products || []).reduce(
+        (acc, p) => acc + (p.quantity || 0),
+        0
+      );
+
       set({
         items: products || [],
         subtotal,
-        total: subtotal, // o podés sumar envío, impuestos, etc.
+        total: subtotal,
         discount: 0,
         coupon: "",
+        cartCount: totalItems, 
       });
     } catch (err) {
       console.error("Error cargando carrito:", err);
@@ -63,7 +69,7 @@ const useStore = create((set, get) => ({
 
   purchaseCart: async () => {
     await CartAPI.purchase();
-    await get().loadCart(); // crea un carrito nuevo vacío
+    await get().loadCart(); 
   },
 
   hydrate: async () => {
