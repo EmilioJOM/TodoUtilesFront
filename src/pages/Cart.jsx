@@ -119,7 +119,6 @@ export default function Cart() {
             textAlign: "center",
             marginTop: 16,
             opacity: items.length === 0 ? 0.6 : 1, 
-            cursor: items.length === 0 ? "not-allowed" : "pointer",
           }}
         >
           Confirmar Carrito
