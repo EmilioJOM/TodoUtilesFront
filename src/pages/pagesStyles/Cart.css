@@ -1,0 +1,56 @@
+.button.trash {
+  width: 60px;
+  height: 40px;
+  border-radius: 20%;
+  background-color: #fff;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.button.trash:hover {
+  background-color: rgb(255, 69, 69);
+  transform: scale(1.05);
+}
+
+.svgIcon {
+  width: 15px;
+  height: auto;
+  transition: transform 0.4s ease;
+}
+
+.svgIcon path {
+  fill: black;
+  transition: fill 0.3s;
+}
+
+.button.trash:hover .svgIcon path {
+  fill: white;
+}
+
+.bin-top {
+  transform-origin: bottom right;;
+}
+
+.button.trash:hover .bin-top {
+    transition-duration: 0.5s;
+    transform: rotate(160deg);
+}
+
+
+.confirm-cart-btn {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.confirm-cart-btn:hover:not(:disabled) {
+  filter: brightness(0.9); /* oscurece un 10% el color */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}

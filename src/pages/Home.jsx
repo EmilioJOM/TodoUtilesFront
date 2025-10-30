@@ -4,6 +4,7 @@ import Section from "../components/Section.jsx";
 import { card, palette } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { useEffect, useState } from "react";
+import "./pagesStyles/Home.css"
 
 const Home=({store}) =>{
 
@@ -46,19 +47,24 @@ const Home=({store}) =>{
     <>
 
       <Hero />
-      <Section title="Nuestros productos" link={<a href="#/search">Ver todo</a>}>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-
-          {products.slice(0,5).map((p) => ( //tengo que mapear el estado asi que uso map
-          <ProductCard
-            key={p.id} //map SIEMPRE necesita una key para funcionar
-            product={p}
-            onAdd={store.add}
-          />
-        ))}
-        </div>
+        <Section title="Nuestros productos" link={<a href="#/search">Ver todo</a>}>
+          <div className="carousel-wrap">
+            <div
+              className="product-carousel"
+              onWheel={(e) => {
+                const el = e.currentTarget;
+                if (el.scrollWidth > el.clientWidth) {
+                  e.preventDefault();
+                  el.scrollLeft += e.deltaY;
+                }
+              }}
+            >
+              {products.slice(0, 10).map((p) => (
+                <ProductCard key={p.id} product={p} onAdd={store.add} />
+              ))}
+            </div>
+          </div>
         </Section>
-
       <Section title="Categorías">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 }}>
           {categories.map((c) => (

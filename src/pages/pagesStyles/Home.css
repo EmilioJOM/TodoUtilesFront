@@ -1,0 +1,42 @@
+.carousel-wrap {
+    width: 68.5vw; /* ocupa todo el ancho visible */
+    position: relative;
+    left: 75%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: transparent;
+    padding: 0 32px; /* iguala el espacio lateral del Hero */
+    box-sizing: border-box;
+}
+
+.product-carousel {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden; 
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding-bottom: 8px;
+}
+
+.product-carousel {
+    overscroll-behavior: contain;
+}
+
+.product-carousel::-webkit-scrollbar {
+    height: 8px;
+}
+
+.product-carousel::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.product-carousel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Opcional: hace que las tarjetas no se achiquen */
+.product-carousel > * {
+    flex: 0 0 auto;
+}

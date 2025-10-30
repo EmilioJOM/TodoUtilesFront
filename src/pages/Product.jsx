@@ -4,7 +4,7 @@ import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
 import { ProductsAPI } from "../api/index.jsx"; // <-- Agregar esta importación
-import "./Product.css";
+import "./pagesStyles/Product.css"
 
 const Product = ({ store, id }) => {
   const URL = `http://localhost:4002/api/productos/${id}`;

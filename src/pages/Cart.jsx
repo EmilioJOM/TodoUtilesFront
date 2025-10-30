@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import useStore from "../store/UseStore.jsx";
 import { wrap, card, button, palette } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
+import "./pagesStyles/Cart.css"
 
 export default function Cart() {
   const store = useStore();
@@ -72,11 +73,31 @@ export default function Cart() {
 
             
               <button
-                onClick={() => store.removeFromCart(p.productId)}
-                style={button(false)}
-              >
-                🗑️
-              </button>
+  onClick={() => store.removeFromCart(p.productId)}
+  className="button trash"
+>
+  {/* Tapa */}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 69 14"
+    className="svgIcon bin-top"
+  >
+    <path
+      d="M20.8232 2.62734L19.9948 4.21304C19.8224 4.54309 19.4808 4.75 19.1085 4.75H4.92857C2.20246 4.75 0 6.87266 0 9.5C0 12.1273 2.20246 14.25 4.92857 14.25H64.0714C66.7975 14.25 69 12.1273 69 9.5C69 6.87266 66.7975 4.75 64.0714 4.75H49.8915C49.5192 4.75 49.1776 4.54309 49.0052 4.21305L48.1768 2.62734C47.3451 1.00938 45.6355 0 43.7719 0H25.2281C23.3645 0 21.6549 1.00938 20.8232 2.62734Z"
+    ></path>
+  </svg>
+
+  {/* Cuerpo */}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 69 57"
+    className="svgIcon bin-bottom"
+  >
+    <path
+      d="M6 10H63L59 50C58.5 54 55.5 57 51.5 57H17.5C13.5 57 10.5 54 10 50L6 10Z"
+    ></path>
+  </svg>
+</button>
             </div>
           ))
         )}
@@ -112,7 +133,8 @@ export default function Cart() {
             store.purchaseCart();
             window.location.hash = "#/shipping";
           }}
-          disabled={items.length === 0} 
+          disabled={items.length === 0}
+          className="confirm-cart-btn" 
           style={{
             ...button(true),
             display: "block",

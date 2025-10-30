@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CenteredCard from "../components/CenteredCard.jsx";
 import { input, button, palette } from "../utils/styles.jsx";
 import useStore from "../store/UseStore.jsx";
-import "./Login.css"
+import "./pagesStyles/Login.css"
 
 export default function Login() {
   const [email, setEmail] = useState("");
