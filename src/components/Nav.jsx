@@ -83,13 +83,17 @@ export default function Nav({ onSearch, q }) {
           <A to="#/">Inicio</A>
           <A to="#/search">Productos</A>
           <A to="#/about">Contacto</A>
-          {admin && (
+          {admin ? (
             <>
               <A to="#/admin/new">Nuevo</A>
               <A to="#/admin/sales">Ventas</A>
               <A to="#/admin/coupons">Cupones</A>
             </>
-          )}
+          ) : user ? (
+            <>
+              <A to="#/purchases">Compras</A>
+            </>
+          ) : null}
         </div>
 
         {/* Barra derecha: búsqueda, carrito y usuario */}

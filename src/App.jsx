@@ -17,7 +17,7 @@ import AdminCreate from "./pages/AdminCreate.jsx";
 import Sales from "./pages/Sales.jsx";
 import Coupons from "./pages/Coupons.jsx";
 import "./App.css";
-
+import Purchases from "./pages/Purchases.jsx";
 
 
 
@@ -54,6 +54,8 @@ case "login":
 return <Login />;
 case "register": 
 return <Register />;
+case "purchases":
+return <Purchases />;
 default:
 return <div style={{ padding: 24 }}>Página no encontrada.</div>;
 }
