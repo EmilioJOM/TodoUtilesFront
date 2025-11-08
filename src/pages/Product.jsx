@@ -12,7 +12,7 @@ const Product = ({ store, id }) => {
   const [mainImage, setMainImage] = useState(0);
   const [qty, setQty] = useState(1);
 
-  // ⬇️ Nuevo: estados para admin
+  // Nuevo: estados para admin
   const isAdmin = store?.isAdmin?.() === true;
   const [deltaStock, setDeltaStock] = useState(0);
   const [savingStock, setSavingStock] = useState(false);
@@ -29,7 +29,7 @@ const Product = ({ store, id }) => {
 
   if (!product) return <div style={{ ...wrap, marginTop: 24 }}>Producto no encontrado.</div>;
 
-  // ⬇️ Nuevo: handlers admin
+  // Nuevo: handlers admin
   async function applyStockDelta() {
     setError(""); 
     const n = parseInt(deltaStock, 10);
@@ -153,7 +153,7 @@ const Product = ({ store, id }) => {
   </label>
 </div>
 
-        {/* ⬇️ NUEVO: Panel ADMIN */}
+        {/* NUEVO: Panel ADMIN */}
         {isAdmin && (
           <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid #eee" }}>
             <div style={{ fontWeight: 800, marginBottom: 8 }}>Panel de administración</div>

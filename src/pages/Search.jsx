@@ -1,28 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import NoResults from "../components/NoResults.jsx";
 
-const Search = ({ store, queryFromNav }) => {
-  //const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
-  //const startQ = params.get("q") || "";
-  //const startCat = params.get("cat") || "";
+const Search = ({ store, queryFromNav}) => {
 
   // Estado para filtros activos
-  const [q, setQ] = useState(""); // se usa para filtrar productos
-  //const [cat, setCat] = useState(startCat);
-  const [cat, setCat] = useState("");
+  const [cat, setCat] = useState(""); 
   const [maxPrice, setMaxPrice] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); 
 
-  // Estado para el texto ingresado por el usuario (búsqueda)
-  const [searchQuery, setSearchQuery] = useState(""); // lo que el usuario escribe
+  //lo que estan escribiendo los usuarios en el momento
+  const[query,setQuery]=useState("");
+  const[price,setPrice]=useState("");
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [productsName, setProductsName] =useState([]);
 
   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
   const URL_CATEGORIAS = "http://localhost:4002/categories";
-  
+
 
   // Obtengo todos los productos
   useEffect(() => {
@@ -38,7 +35,6 @@ const Search = ({ store, queryFromNav }) => {
   fetch(URL_CATEGORIAS)
     .then((response) => response.json())
     .then((data) => {
-      // Si el backend devuelve un Page<Category>
       setCategories(Array.isArray(data.content) ? data.content : []);
     })
     .catch((error) => console.error("Error al obtener las categorías: ", error));
@@ -48,12 +44,13 @@ const Search = ({ store, queryFromNav }) => {
   //creo una lista con todos los productos filtrados
   const list = useMemo(() => { 
     return products.filter((p) => {
-      const inCategory = !cat || (Array.isArray(p.categories) && p.categories.includes(cat));
+      const inCategory = !cat || (Array.isArray(p.categories) && p.categories.includes(cat)); //aca cambie xd
       const inQuery = !searchQuery || p.description.toLowerCase().includes(searchQuery.toLowerCase()); //este es el que filtra por descripcion
       
       const price = parseFloat(p.price);
       const max = parseFloat(maxPrice);
       const inMax = !maxPrice || (!isNaN(max) && price <= max);
+      
 
       return inCategory && inQuery && inMax;
     });
@@ -77,22 +74,29 @@ const Search = ({ store, queryFromNav }) => {
             ))}
         </select>
 
+
+
         {/* Filtro por precio máximo */}
         <input
           type="number"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setMaxPrice(price); // aplicar búsqueda al presionar Enter
+            }
+          }}
           placeholder="Precio máximo"
           style={{ ...input, maxWidth: 120 }}
         />
 
         {/* Input de búsqueda (escribe libremente) -- se filtra por descripcion */}
         <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              setSearchQuery(searchQuery); // aplicar búsqueda al presionar Enter
+              setSearchQuery(query); // aplicar búsqueda al presionar Enter
             }
           }}
           placeholder="Realizar búsqueda…"
@@ -110,12 +114,14 @@ const Search = ({ store, queryFromNav }) => {
 
 
         {/* Botón para limpiar filtros */}
-        {(q || cat || maxPrice) && (
+        {(searchQuery || cat || maxPrice) && (
           <button
             onClick={() => {
               setSearchQuery("");
+              setQuery("");
               setCat("");
               setMaxPrice("");
+              setPrice("");
             }}
             style={{
               padding: "10px 14px",
@@ -128,8 +134,11 @@ const Search = ({ store, queryFromNav }) => {
           </button>
         )}
       </div>
-
-
+      
+      {/*renderizado condicional*/}
+      {list.length===0 ? ( //si la busqueda con filtros no da ningun resultado
+        <NoResults/>
+      ) : ( //si SI tiene resultados
       <div
         style={{
           display: "grid",
@@ -143,6 +152,9 @@ const Search = ({ store, queryFromNav }) => {
           <ProductCard key={p.id} product={p} onAdd={store.add} />
         ))}
       </div>
+      )
+      }
+
     </div>
   );
 };
