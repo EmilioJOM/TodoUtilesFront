@@ -30,16 +30,13 @@ const Home=({store}) =>{
   }, []);
 
   //obtengo las categorias
-  useEffect(() => {
+  useEffect(() => { //el back maneja las categorias como page, no como una lista
   fetch(URL_CATEGORIAS)
     .then((response) => response.json())
     .then((data) => {
-      //console.log("Categorías recibidas:", data); // para chequear la estructura
-      setCategories(Array.isArray(data) ? data : data.categories || []);
+      setCategories(Array.isArray(data.content) ? data.content : []);
     })
-    .catch((error) => {
-      console.error("Error al obtener las categorías: ", error);
-    });
+    .catch((error) => console.error("Error al obtener las categorías: ", error));
 }, []);
 
 
@@ -66,10 +63,10 @@ const Home=({store}) =>{
           </div>
         </Section>
       <Section title="Categorías">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 ,color: "8cacf2ff"}}>
           {categories.map((c) => (
             <a key={c.id} 
-            href={`#/search?cat=${encodeURIComponent(c.description)}`} style={{ ...card, padding: 16, textDecoration: "none", color: palette.ink }}>
+            href={`#/search?cat=${encodeURIComponent(c.description)}`} style={{ ...card, padding: 16, textDecoration: "none", color: "#2563eb" }}>
               <div style={{ fontWeight: 700 }}>{c.description}</div>
             </a>
           ))}

@@ -3,23 +3,26 @@ import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 const Search = ({ store, queryFromNav }) => {
-  const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
-  const startQ = params.get("q") || "";
-  const startCat = params.get("cat") || "";
+  //const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
+  //const startQ = params.get("q") || "";
+  //const startCat = params.get("cat") || "";
 
   // Estado para filtros activos
-  const [q, setQ] = useState(startQ); // se usa para filtrar productos
-  const [cat, setCat] = useState(startCat);
+  const [q, setQ] = useState(""); // se usa para filtrar productos
+  //const [cat, setCat] = useState(startCat);
+  const [cat, setCat] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
   // Estado para el texto ingresado por el usuario (búsqueda)
-  const [searchQuery, setSearchQuery] = useState(startQ); // lo que el usuario escribe
+  const [searchQuery, setSearchQuery] = useState(""); // lo que el usuario escribe
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [productsName, setProductsName] =useState([]);
 
   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
   const URL_CATEGORIAS = "http://localhost:4002/categories";
+  
 
   // Obtengo todos los productos
   useEffect(() => {
@@ -30,39 +33,33 @@ const Search = ({ store, queryFromNav }) => {
   }, []);
 
 
-  // Obtengo todas las categorías
-  useEffect(() => {
-    fetch(URL_CATEGORIAS)
-      .then((response) => response.json())
-      .then((data) => {
-        setCategories(Array.isArray(data) ? data : data.categories || []);
-      })
-      .catch((error) => console.error("Error al obtener las categorías: ", error));
-  }, []);
+  //todas las categorias
+  useEffect(() => { //el back maneja las categorias como Page
+  fetch(URL_CATEGORIAS)
+    .then((response) => response.json())
+    .then((data) => {
+      // Si el backend devuelve un Page<Category>
+      setCategories(Array.isArray(data.content) ? data.content : []);
+    })
+    .catch((error) => console.error("Error al obtener las categorías: ", error));
+}, []);
 
 
   //creo una lista con todos los productos filtrados
   const list = useMemo(() => { 
     return products.filter((p) => {
       const inCategory = !cat || (Array.isArray(p.categories) && p.categories.includes(cat));
-      const inQuery = !q || p.description.toLowerCase().includes(q.toLowerCase());
-
+      const inQuery = !searchQuery || p.description.toLowerCase().includes(searchQuery.toLowerCase()); //este es el que filtra por descripcion
+      
       const price = parseFloat(p.price);
       const max = parseFloat(maxPrice);
       const inMax = !maxPrice || (!isNaN(max) && price <= max);
 
       return inCategory && inQuery && inMax;
     });
-  }, [q, cat, maxPrice, products]);
+  }, [searchQuery, cat, maxPrice, products]);
 
 
-  // Cambia el URL si aplicamos algun parametro de busqueda
-  useEffect(() => {
-    const search = new URLSearchParams();
-    if (q) search.set("q", q);
-    if (cat) search.set("cat", cat);
-    window.location.hash = `#/search${search.toString() ? "?" + search.toString() : ""}`;
-  }, [q, cat]);
 
   return (
     <div style={{ ...wrap }}>
@@ -95,7 +92,7 @@ const Search = ({ store, queryFromNav }) => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              setQ(searchQuery); // aplicar búsqueda al presionar Enter
+              setSearchQuery(searchQuery); // aplicar búsqueda al presionar Enter
             }
           }}
           placeholder="Realizar búsqueda…"
@@ -116,7 +113,6 @@ const Search = ({ store, queryFromNav }) => {
         {(q || cat || maxPrice) && (
           <button
             onClick={() => {
-              setQ("");
               setSearchQuery("");
               setCat("");
               setMaxPrice("");
