@@ -131,7 +131,7 @@ export default function Cart() {
         <button
           onClick={() => {
             store.purchaseCart();
-            window.location.hash = "#/shipping";
+            window.location.hash = "#/payment";
           }}
           disabled={items.length === 0}
           className="confirm-cart-btn" 

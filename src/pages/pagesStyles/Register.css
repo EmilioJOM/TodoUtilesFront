@@ -1,0 +1,94 @@
+.register {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.register > div {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.register h2 {
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #111;
+}
+
+/* inputs */
+.register input {
+  width: 100%;
+  margin-bottom: 0.8rem;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* nombres lado a lado */
+.register-names {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.register-names input {
+  width: 100%;
+}
+
+/* botón */
+.register-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.register-button:hover {
+  background-color: #1e4ed8;
+}
+
+.register-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* error */
+.register-error {
+  color: red;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* pie */
+.register-footer {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #6b7280;
+}
+
+.register-footer a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.register-footer a:hover {
+  text-decoration: underline;
+}
