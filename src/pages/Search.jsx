@@ -3,7 +3,7 @@ import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import NoResults from "../components/NoResults.jsx";
 
-const Search = ({ store, queryFromNav}) => {
+const Search = ({ store, initialCat, initialQuery, queryFromNav}) => {
 
   // Estado para filtros activos
   const [cat, setCat] = useState(""); 
@@ -44,7 +44,7 @@ const Search = ({ store, queryFromNav}) => {
   //creo una lista con todos los productos filtrados
   const list = useMemo(() => { 
     return products.filter((p) => {
-      const inCategory = !cat || (Array.isArray(p.categories) && p.categories.includes(cat)); //aca cambie xd
+      const inCategory = !cat || (Array.isArray(p.categories) && p.categories.map(c=>c.description).includes(cat)); //filtra por categoria
       const inQuery = !searchQuery || p.description.toLowerCase().includes(searchQuery.toLowerCase()); //este es el que filtra por descripcion
       
       const price = parseFloat(p.price);

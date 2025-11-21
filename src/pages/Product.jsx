@@ -101,7 +101,7 @@ const Product = ({ store, id }) => {
             label="Categoría(s)"
             value={
               Array.isArray(product.categories) && product.categories.length > 0
-                ? product.categories.join(", ")
+                ? product.categories.map(c=>c.description).join(", ")
                 : "Sin categoría"
             }
           />
