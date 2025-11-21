@@ -66,7 +66,7 @@ const Home=({store}) =>{
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 ,color: "8cacf2ff"}}>
           {categories.map((c) => (
             <a key={c.id} 
-            href={`#/search`} style={{ ...card, padding: 16, textDecoration: "none", color: "#2563eb" }}>
+            href={`#/search?cat=${encodeURIComponent(c.description)}`} style={{ ...card, padding: 16, textDecoration: "none", color: "#2563eb" }}>
               <div style={{ fontWeight: 700 }}>{c.description}</div>
             </a>
           ))}

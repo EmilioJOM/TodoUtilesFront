@@ -3,7 +3,7 @@ import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import NoResults from "../components/NoResults.jsx";
 
-const Search = ({ store, initialCat, initialQuery, queryFromNav}) => {
+const Search = ({ store, queryFromNav}) => {
 
   // Estado para filtros activos
   const [cat, setCat] = useState(""); 
@@ -39,6 +39,22 @@ const Search = ({ store, initialCat, initialQuery, queryFromNav}) => {
     })
     .catch((error) => console.error("Error al obtener las categorías: ", error));
 }, []);
+
+
+  useEffect(() => {
+  const hash = window.location.hash;
+  const queryString = hash.split("?")[1];
+  if (!queryString) return;
+
+  const params = new URLSearchParams(queryString);
+  const catParam = params.get("cat");
+
+  if (catParam) {
+    setCat(catParam);      // activa el filtro
+  }
+}, []);
+
+
 
 
   //creo una lista con todos los productos filtrados
