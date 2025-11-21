@@ -20,7 +20,6 @@ const Search = ({ store, queryFromNav}) => {
   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
   const URL_CATEGORIAS = "http://localhost:4002/categories";
 
-
   // Obtengo todos los productos
   useEffect(() => {
     fetch(URL_PRODUCTOS)
@@ -39,22 +38,6 @@ const Search = ({ store, queryFromNav}) => {
     })
     .catch((error) => console.error("Error al obtener las categorías: ", error));
 }, []);
-
-
-  useEffect(() => {
-  const hash = window.location.hash;
-  const queryString = hash.split("?")[1];
-  if (!queryString) return;
-
-  const params = new URLSearchParams(queryString);
-  const catParam = params.get("cat");
-
-  if (catParam) {
-    setCat(catParam);      // activa el filtro
-  }
-}, []);
-
-
 
 
   //creo una lista con todos los productos filtrados
