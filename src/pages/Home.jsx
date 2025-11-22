@@ -9,22 +9,13 @@ import { useDispatch } from "react-redux";
 import { fetchProducts } from "../redux/productSlice.js";
 import { useSelector } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice.js";
-
+import {setFilterCategory} from "../redux/categorySlice.js";
 
 const Home=({store}) =>{
 
-  //const [products, setProducts] = useState([]);
-  //const [categories, setCategories]=useState([]);
-
-  //La URL accede a todos los productos
-  const URL_PRODUCTOS='http://localhost:4002/api/productos'
-  
-  //accede a todas las categorias
-  const URL_CATEGORIAS='http://localhost:4002/categories'
-
   const dispatch=useDispatch()
   const {items: products,error: productError,loading:productLoading} = useSelector((state)=>state.products)
-  const {items: categories ,error: categoryError,loading: categoryLoading}= useSelector((state)=>state.categories)
+  const {items: categories}= useSelector((state)=>state.categories)
   
   //obtengo todos los productos
   useEffect(()=>{  
@@ -36,36 +27,16 @@ const Home=({store}) =>{
     dispatch(fetchCategories())
   },[dispatch])
 
-
-/*   //obtengo todos los productos
-  useEffect(() => {
-    fetch(URL_PRODUCTOS)  
-      .then((response) => response.json()) 
-      .then((data) => {
-        setProducts(data); 
-      })
-      .catch((error) => { 
-        console.error("Error al obtener los datos: ", error);
-      });
-  }, []); */
-
-/*   //obtengo las categorias
-  useEffect(() => { //el back maneja las categorias como page, no como una lista
-  fetch(URL_CATEGORIAS)
-    .then((response) => response.json())
-    .then((data) => {
-      setCategories(Array.isArray(data.content) ? data.content : []);
-    })
-    .catch((error) => console.error("Error al obtener las categorías: ", error));
-}, []); */
-
 if (productLoading) return <p>Cargando productos...</p>
 if (productError) return <p>Error al cargar los productos: {error}</p>
   return (
     <>
 
       <Hero />
-        <Section title="Nuestros productos" link={<a href="#/search">Ver todo</a>}>
+        <Section title="Nuestros productos" 
+        link={<a
+        onClick={()=>dispatch(setFilterCategory(""))} 
+        href="#/search">Ver todo</a>}>
           <div className="carousel-wrap">
             <div
               className="product-carousel"
@@ -82,12 +53,15 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
               ))}
             </div>
           </div>
+
+
         </Section>
       <Section title="Categorías">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 ,color: "8cacf2ff"}}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 12 ,color:"#eb25baff" }}>
           {categories.map((c) => (
-            <a key={c.id} 
-            href={`#/search`} style={{ ...card, padding: 16, textDecoration: "none", color: "#2563eb" }}>
+            <a key={c.id}
+            onClick={()=>dispatch(setFilterCategory(c.description))}
+            href={`#/search`} style={{ ...card, padding: 16, textDecoration: "none", color: "#165ef8ff" }}>
               <div style={{ fontWeight: 700 }}>{c.description}</div>
             </a>
           ))}

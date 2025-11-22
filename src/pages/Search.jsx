@@ -6,12 +6,13 @@ import { useDispatch } from "react-redux";
 import { fetchProducts } from "../redux/productSlice.js";
 import { useSelector } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice.js";
+import {setFilterCategory} from "../redux/categorySlice.js";
 
 const Search = ({ store, queryFromNav}) => {
 
   const dispatch=useDispatch()
   const {items: products,error:productError,loading:productLoading} = useSelector((state)=>state.products)
-  const{items: categories,error:categoryError,loading:categoryLoading}= useSelector((state)=>state.categories)
+  const{items: categories,filterCategory:cat}= useSelector((state)=>state.categories)
 
   //obtengo todos los productos
   useEffect(()=>{ 
@@ -23,9 +24,7 @@ const Search = ({ store, queryFromNav}) => {
     dispatch(fetchCategories())
   },[dispatch])
 
-
   // Estado para filtros activos
-  const [cat, setCat] = useState(""); 
   const [maxPrice, setMaxPrice] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); 
 
@@ -33,37 +32,11 @@ const Search = ({ store, queryFromNav}) => {
   const[query,setQuery]=useState("");
   const[price,setPrice]=useState("");
 
-  //const [products, setProducts] = useState([]);
-  //const [categories, setCategories] = useState([]);
-
-/*   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
-  const URL_CATEGORIAS = "http://localhost:4002/categories"; */
-
-/*   // Obtengo todos los productos
-  useEffect(() => {
-    fetch(URL_PRODUCTOS)
-      .then((response) => response.json())
-      .then((data) => setProducts(data))
-      .catch((error) => console.error("Error al obtener productos: ", error));
-  }, []); */
-
-
-/*   //todas las categorias
-  useEffect(() => { //el back maneja las categorias como Page
-  fetch(URL_CATEGORIAS)
-    .then((response) => response.json())
-    .then((data) => {
-      setCategories(Array.isArray(data.content) ? data.content : []);
-    })
-    .catch((error) => console.error("Error al obtener las categorías: ", error));
-}, []); */
-
-
   //creo una lista con todos los productos filtrados
   const list = useMemo(() => { 
     return products.filter((p) => {
       const inCategory = !cat || (Array.isArray(p.categories) && p.categories.map(c=>c.description).includes(cat)); //filtra por categoria
-      const inQuery = !searchQuery || p.description.toLowerCase().includes(searchQuery.toLowerCase()); //este es el que filtra por descripcion
+      const inQuery = !searchQuery || p.description.toLowerCase().includes(searchQuery.toLowerCase()); //filtra por descripcion
       
       const price = parseFloat(p.price);
       const max = parseFloat(maxPrice);
@@ -83,7 +56,7 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
         <div style={{ ...tag }}>Filtros</div>
 
         {/* Para filtrar por categoria*/}
-        <select value={cat} onChange={(e) => setCat(e.target.value)} style={{ ...input, maxWidth: 200 }}>
+        <select value={cat} onChange={(e) => dispatch(setFilterCategory(e.target.value))} style={{ ...input, maxWidth: 200 }}>
           <option value="">Categorías</option>
           {Array.isArray(categories) &&
             categories.map((c) => (
@@ -92,7 +65,6 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
               </option>
             ))}
         </select>
-
 
 
         {/* Filtro por precio máximo */}
@@ -109,6 +81,7 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
           style={{ ...input, maxWidth: 120 }}
         />
 
+
         {/* Input de búsqueda (escribe libremente) -- se filtra por descripcion */}
         <input
           value={query}
@@ -121,7 +94,6 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
           placeholder="Realizar búsqueda…"
           style={{ ...input, maxWidth: 280 }}
         />
-
 
         {/* Botón para aplicar la búsqueda manualmente */}
         <button
@@ -138,7 +110,7 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
             onClick={() => {
               setSearchQuery("");
               setQuery("");
-              setCat("");
+              dispatch(setFilterCategory(""));
               setMaxPrice("");
               setPrice("");
             }}

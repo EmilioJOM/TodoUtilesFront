@@ -1,6 +1,11 @@
 import "./componentsStyles/Hero.css";
+import {setFilterCategory} from "../redux/categorySlice.js";
+import { useDispatch } from "react-redux";
 
 export default function Hero() {
+   
+  const dispatch=useDispatch()
+
   return (
     <section className="hero-container">
       <div className="hero-content">
@@ -13,9 +18,13 @@ export default function Hero() {
           <br />
           ¡Explora nuestras categorías!
         </p>
-        <a href="#/search" className="hero-button">
+
+       {<a
+        onClick={()=>dispatch(setFilterCategory(""))} 
+        href="#/search" className="hero-button">
           Ver productos
-        </a>
+        </a>}
+
       </div>
 
       <div className="hero-image">

@@ -14,9 +14,14 @@ const categorySlice=createSlice({
     initialState:{
         items:[],
         loading: false,
-        error: null
+        error: null,
+        filterCategory: "" //categoria con la que estoy filtrando en el momento
     },
-    reducers:{}, //operaciones sincronas
+    reducers: { //operaciones sincronas - no ingreso al back
+        setFilterCategory: (state,action)=>{
+            state.filterCategory = action.payload
+        }
+    }, 
     extraReducers: (builder)=>{ //operaciones asincronas
         builder
         .addCase(fetchCategories.pending,(state)=>{
@@ -35,4 +40,5 @@ const categorySlice=createSlice({
     }
 })
 
+export const {setFilterCategory} = categorySlice.actions
 export default categorySlice.reducer
