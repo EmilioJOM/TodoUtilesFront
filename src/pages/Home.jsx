@@ -5,11 +5,16 @@ import { card, palette } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { useEffect, useState } from "react";
 import "./pagesStyles/Home.css"
+import { useDispatch } from "react-redux";
+import { fetchProducts } from "../redux/productSlice.js";
+import { useSelector } from "react-redux";
+import { fetchCategories } from "../redux/categorySlice.js";
+
 
 const Home=({store}) =>{
 
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories]=useState([]);
+  //const [products, setProducts] = useState([]);
+  //const [categories, setCategories]=useState([]);
 
   //La URL accede a todos los productos
   const URL_PRODUCTOS='http://localhost:4002/api/productos'
@@ -17,7 +22,22 @@ const Home=({store}) =>{
   //accede a todas las categorias
   const URL_CATEGORIAS='http://localhost:4002/categories'
 
+  const dispatch=useDispatch()
+  const {items: products,error: productError,loading:productLoading} = useSelector((state)=>state.products)
+  const {items: categories ,error: categoryError,loading: categoryLoading}= useSelector((state)=>state.categories)
+  
   //obtengo todos los productos
+  useEffect(()=>{  
+    dispatch(fetchProducts())
+  },[dispatch])
+
+  //obtengo todas las categorias
+  useEffect(()=>{
+    dispatch(fetchCategories())
+  },[dispatch])
+
+
+/*   //obtengo todos los productos
   useEffect(() => {
     fetch(URL_PRODUCTOS)  
       .then((response) => response.json()) 
@@ -27,9 +47,9 @@ const Home=({store}) =>{
       .catch((error) => { 
         console.error("Error al obtener los datos: ", error);
       });
-  }, []);
+  }, []); */
 
-  //obtengo las categorias
+/*   //obtengo las categorias
   useEffect(() => { //el back maneja las categorias como page, no como una lista
   fetch(URL_CATEGORIAS)
     .then((response) => response.json())
@@ -37,9 +57,10 @@ const Home=({store}) =>{
       setCategories(Array.isArray(data.content) ? data.content : []);
     })
     .catch((error) => console.error("Error al obtener las categorías: ", error));
-}, []);
+}, []); */
 
-
+if (productLoading) return <p>Cargando productos...</p>
+if (productError) return <p>Error al cargar los productos: {error}</p>
   return (
     <>
 

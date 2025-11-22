@@ -5,14 +5,22 @@ import NoResults from "../components/NoResults.jsx";
 import { useDispatch } from "react-redux";
 import { fetchProducts } from "../redux/productSlice.js";
 import { useSelector } from "react-redux";
+import { fetchCategories } from "../redux/categorySlice.js";
 
 const Search = ({ store, queryFromNav}) => {
 
   const dispatch=useDispatch()
-  const {items: products,error,loading} = useSelector((state)=>state.products)
+  const {items: products,error:productError,loading:productLoading} = useSelector((state)=>state.products)
+  const{items: categories,error:categoryError,loading:categoryLoading}= useSelector((state)=>state.categories)
 
-  useEffect(()=>{
+  //obtengo todos los productos
+  useEffect(()=>{ 
     dispatch(fetchProducts())
+  },[dispatch])
+
+  //obtengo todas las categorias
+  useEffect(()=>{
+    dispatch(fetchCategories())
   },[dispatch])
 
 
@@ -26,10 +34,10 @@ const Search = ({ store, queryFromNav}) => {
   const[price,setPrice]=useState("");
 
   //const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  //const [categories, setCategories] = useState([]);
 
-  const URL_PRODUCTOS = "http://localhost:4002/api/productos";
-  const URL_CATEGORIAS = "http://localhost:4002/categories";
+/*   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
+  const URL_CATEGORIAS = "http://localhost:4002/categories"; */
 
 /*   // Obtengo todos los productos
   useEffect(() => {
@@ -40,7 +48,7 @@ const Search = ({ store, queryFromNav}) => {
   }, []); */
 
 
-  //todas las categorias
+/*   //todas las categorias
   useEffect(() => { //el back maneja las categorias como Page
   fetch(URL_CATEGORIAS)
     .then((response) => response.json())
@@ -48,7 +56,7 @@ const Search = ({ store, queryFromNav}) => {
       setCategories(Array.isArray(data.content) ? data.content : []);
     })
     .catch((error) => console.error("Error al obtener las categorías: ", error));
-}, []);
+}, []); */
 
 
   //creo una lista con todos los productos filtrados
@@ -67,8 +75,8 @@ const Search = ({ store, queryFromNav}) => {
   }, [searchQuery, cat, maxPrice, products]);
 
 
-if (loading) return <p>Cargando productos...</p>
-if (error) return <p>Error al cargar los productos: {error}</p>
+if (productLoading) return <p>Cargando productos...</p>
+if (productError) return <p>Error al cargar los productos: {error}</p>
   return (
     <div style={{ ...wrap }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
