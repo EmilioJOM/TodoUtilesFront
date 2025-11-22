@@ -2,8 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import NoResults from "../components/NoResults.jsx";
+import { useDispatch } from "react-redux";
+import { fetchProducts } from "../redux/productSlice.js";
+import { useSelector } from "react-redux";
 
 const Search = ({ store, queryFromNav}) => {
+
+  const dispatch=useDispatch()
+  const {items: products,error,loading} = useSelector((state)=>state.products)
+
+  useEffect(()=>{
+    dispatch(fetchProducts())
+  },[dispatch])
+
 
   // Estado para filtros activos
   const [cat, setCat] = useState(""); 
@@ -14,19 +25,19 @@ const Search = ({ store, queryFromNav}) => {
   const[query,setQuery]=useState("");
   const[price,setPrice]=useState("");
 
-  const [products, setProducts] = useState([]);
+  //const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
   const URL_PRODUCTOS = "http://localhost:4002/api/productos";
   const URL_CATEGORIAS = "http://localhost:4002/categories";
 
-  // Obtengo todos los productos
+/*   // Obtengo todos los productos
   useEffect(() => {
     fetch(URL_PRODUCTOS)
       .then((response) => response.json())
       .then((data) => setProducts(data))
       .catch((error) => console.error("Error al obtener productos: ", error));
-  }, []);
+  }, []); */
 
 
   //todas las categorias
@@ -56,7 +67,8 @@ const Search = ({ store, queryFromNav}) => {
   }, [searchQuery, cat, maxPrice, products]);
 
 
-
+if (loading) return <p>Cargando productos...</p>
+if (error) return <p>Error al cargar los productos: {error}</p>
   return (
     <div style={{ ...wrap }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
