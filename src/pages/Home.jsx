@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard.jsx";
 import { useEffect, useState } from "react";
 import "./pagesStyles/Home.css"
 import { useDispatch } from "react-redux";
-import { fetchProducts } from "../redux/productSlice.js";
+import { fetchAllProducts } from "../redux/productSlice.js";
 import { useSelector } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice.js";
 import {setFilterCategory} from "../redux/categorySlice.js";
@@ -19,7 +19,7 @@ const Home=({store}) =>{
   
   //obtengo todos los productos
   useEffect(()=>{  
-    dispatch(fetchProducts())
+    dispatch(fetchAllProducts())
   },[dispatch])
 
   //obtengo todas las categorias

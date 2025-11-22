@@ -12,6 +12,7 @@ const Product = ({ store, id }) => {
   const [mainImage, setMainImage] = useState(0);
   const [qty, setQty] = useState(1);
 
+  
   // Nuevo: estados para admin
   const isAdmin = store?.isAdmin?.() === true;
   const [deltaStock, setDeltaStock] = useState(0);

@@ -3,7 +3,7 @@ import { input, tag, wrap } from "../utils/styles.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import NoResults from "../components/NoResults.jsx";
 import { useDispatch } from "react-redux";
-import { fetchProducts } from "../redux/productSlice.js";
+import { fetchAllProducts } from "../redux/productSlice.js";
 import { useSelector } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice.js";
 import {setFilterCategory} from "../redux/categorySlice.js";
@@ -16,7 +16,7 @@ const Search = ({ store, queryFromNav}) => {
 
   //obtengo todos los productos
   useEffect(()=>{ 
-    dispatch(fetchProducts())
+    dispatch(fetchAllProducts())
   },[dispatch])
 
   //obtengo todas las categorias
