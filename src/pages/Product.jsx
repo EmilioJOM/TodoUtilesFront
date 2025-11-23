@@ -96,6 +96,14 @@ const Product = ({ store, id }) => {
       <div style={{ ...card, padding: 16 }}>
         <h1 style={{ margin: 0 }}>{product.description}</h1>
         <div style={{ marginTop: 12 }}>
+
+          {product.extraInfo!=null ? (
+            <p>{product.extraInfo}</p>
+          ) : (
+            <></>
+          )
+        }
+
           <Row label="Precio" value={<b>{currency(product.price)}</b>} />
           <Row label="Stock" value={`${product.stock} unidades`} />
           <Row
