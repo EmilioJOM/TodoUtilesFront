@@ -105,9 +105,7 @@ export default function Nav({ onSearch, q }) {
             gap: 12,
           }}
         >
-          <div style={{ flexShrink: 1 }}>
-            <SearchBox value={q} onChange={onSearch} />
-          </div>
+
 
           {/* Carrito */}
           <div style={{ position: "relative" }}>

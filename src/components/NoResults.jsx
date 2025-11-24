@@ -2,8 +2,8 @@ export default function NoResults() {
   return (
     
 
-    <div class="NoResults">
-    <div class="contenido">
+    <div className="NoResults">
+    <div className="contenido">
     <center>
 
         <br />
