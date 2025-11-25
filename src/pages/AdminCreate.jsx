@@ -1,14 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
 import { wrap, card, input, button, palette } from "../utils/styles.jsx";
-import { getCategories } from "../utils/dataAPI.jsx";
 import { ProductsAPI, CategoriesAPI } from "../api/index.jsx";
+import { fetchCategories } from "../redux/categorySlice.js";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { createCategory } from "../redux/categorySlice.js";
+import { createProduct } from "../redux/productSlice.js";
 
-export default function AdminCreate() {
-  // categorías como lista de strings (p.ej. ["Librería", "Electrónica"])
-  const [cats, setCats] = useState(getCategories());
+export default function AdminCreate() { //TODAVIA NO ESTA 
+  const dispatch=useDispatch()
+  const{items: categories}= useSelector((state)=>state.categories)
 
+  //obtengo todas las categorias
+  useEffect(()=>{
+    dispatch(fetchCategories())
+  },[dispatch])
+
+
+  //estado del coso que va a crear
   const [form, setForm] = useState({
-    name: "", desc: "", price: "", stock: "", cat: ""
+    name: "", desc: "", price: "", stock: "", extraInfo: ""
   });
 
   // imagen de producto
@@ -16,10 +27,8 @@ export default function AdminCreate() {
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(null);
 
-  // categoría nueva + imagen opcional
-  const [newCat, setNewCat] = useState({ name: "", description: "" });
-  const [catFile, setCatFile] = useState(null);
-  const catFileInputRef = useRef(null);
+  // categoría nueva
+  const [newCategory, setNewCategory] =useState({id: 1, description:""});
   const [catPreview, setCatPreview] = useState(null);
 
   // para evitar envíos duplicados
@@ -34,6 +43,10 @@ export default function AdminCreate() {
     };
   }, [preview, catPreview]);
 
+
+  //******************************************** MANEJO DE IMAGENES ************************************************************* */ 
+
+  //LA CAJA PARA METER LAS IMAGENES
   const uploaderBox = {
     border: `2px dashed ${palette.border}`,
     borderRadius: 16,
@@ -62,6 +75,7 @@ export default function AdminCreate() {
     const url = URL.createObjectURL(f);
     setPreview(prev => { if (prev) URL.revokeObjectURL(prev); return url; });
   }
+
   function onDrop(e) {
     e.preventDefault();
     const f = e.dataTransfer.files?.[0];
@@ -72,32 +86,37 @@ export default function AdminCreate() {
   }
   function onDragOver(e){ e.preventDefault(); }
 
-  // uploader categoría (si lo activás en el JSX)
-  function openCatPicker() { catFileInputRef.current?.click(); }
-  function onPickCatFile(e) {
-    const f = e.target.files?.[0];
-    if (!f || !validateImage(f)) return;
-    setCatFile(f);
-    const url = URL.createObjectURL(f);
-    setCatPreview(prev => { if (prev) URL.revokeObjectURL(prev); return url; });
-  }
+  //********************************************************************************************************************* */
 
-  const createProduct = async () => {
-    if (!form.name || !form.price || !form.stock || !form.cat) {
-      alert("Completá nombre, precio, stock y categoría");
+
+  const createNewProduct = async () => {
+    if (!form.name || !form.price || !form.stock || !form.extraInfo) {
+      alert("Completá nombre, descripcion, precio y stock");
       return;
     }
-    if (submittingProduct) return;
-    setSubmittingProduct(true);
+    const auxi = {
+        descripcion: form.name,                         
+        stock: parseInt(form.stock, 10) || 0,
+        price: parseFloat(form.price) || 0,
+        extraInfo: form.extraInfo
+      };
+    
+    dispatch(createProduct(auxi))
+    setForm({name: "", price:"",stock:"",extraInfo:""})
+    }
 
+    
+/*     if (submittingProduct) return; 
+    setSubmittingProduct(true); */
+/* 
     try {
       const payload = {
         descripcion: form.name,                         // <-- ajusta si tu backend espera otra key
-        descripcionLarga: form.desc || "",              // <-- opcional
+        extraInfo: form.desc || "",              // <-- opcional
         stock: parseInt(form.stock, 10) || 0,
         price: parseFloat(form.price) || 0,
-        categoria: form.cat,                            // <-- si tu backend usa `categoria`
-        // category: form.cat,                           // <-- o `category` (descomenta si corresponde)
+        //categoria: form.cat,                            // <-- si tu backend usa `categoria`
+        category: form.cat,                           // <-- o `category` (descomenta si corresponde)
       };
 
       // 1) Crear producto
@@ -120,43 +139,22 @@ export default function AdminCreate() {
       }
     } finally {
       setSubmittingProduct(false);
-    }
-  };
+    } */
 
-  const createCategory = async () => {
-    if (!newCat.name?.trim()) {
+
+
+  //Para crear categorias nuevas
+  const createNewCategory = async () => {
+    if (!newCategory.description?.trim()) {
       alert("El nombre de la categoría es obligatorio");
       return;
     }
-    if (submittingCategory) return;
-    setSubmittingCategory(true);
-
-    try {
-      // 1) crear categoría
-      const created = await CategoriesAPI.create({
-        name: newCat.name.trim(),
-        description: newCat.description?.trim() || "",
-      });
-
-      // 2) si hay imagen, subir
-      if (catFile && created?.id) {
-        await CategoriesAPI.uploadImagev2({ id: created.id, file: catFile });
-      }
-
-      alert("Categoría creado ✅");
-      // mantener cats como lista de strings
-      setCats(prev => [...prev, created.name]);
-      setNewCat({ name: "", description: "" });
-      setCatFile(null);
-      if (catPreview) { URL.revokeObjectURL(catPreview); setCatPreview(null); }
-    } catch (e) {
-      console.error(e);
-      alert(e?.message || "No se pudo crear la categoría");
-    } finally {
-      setSubmittingCategory(false);
-    }
+    dispatch(createCategory(newCategory))
+    setNewCategory({ id: 1, description: "" });
   };
 
+
+  //LO QUE SE VE EN PANTALLA
   return (
     <div style={{ ...wrap, marginTop: 8 }}>
       <h2 style={{ margin: "8px 0 16px" }}>Crear Nuevo Producto</h2>
@@ -174,12 +172,13 @@ export default function AdminCreate() {
             value={form.name}
             onChange={(e)=>setForm({ ...form, name: e.target.value })}
           />
-
+          
+          {/*este no funciona >:[*/}
           <Label style={{ marginTop: 12 }}>Descripción del Producto</Label>
           <textarea
             placeholder="Ej: Lápiz de grafito de alta calidad..."
-            value={form.desc}
-            onChange={(e)=>setForm({ ...form, desc: e.target.value })}
+            value={form.extraInfo}
+            onChange={(e)=>setForm({ ...form, extraInfo: e.target.value })}
             style={{ ...input, minHeight: 96, resize: "vertical" }}
           />
 
@@ -211,7 +210,7 @@ export default function AdminCreate() {
             onChange={(e)=>setForm({ ...form, cat: e.target.value })}
           >
             <option value="">Seleccionar categoría</option>
-            {cats.map(c => <option key={c} value={c}>{c}</option>)}
+            {categories.map(c => <option key={c.id} value={c.description}>{c.description}</option>)}
           </select>
 
           <Label style={{ marginTop: 12 }}>Fotos del Producto</Label>
@@ -248,12 +247,13 @@ export default function AdminCreate() {
 
           <button
             style={{ ...button(true), marginTop: 16, opacity: submittingProduct ? 0.6 : 1 }}
-            onClick={createProduct}
+            onClick={createNewProduct}
             disabled={submittingProduct}
           >
             {submittingProduct ? "Creando..." : "Crear Producto"}
           </button>
         </div>
+
 
         {/* Columna B: Categoría */}
         <div style={{ ...card, padding: 16 }}>
@@ -266,54 +266,12 @@ export default function AdminCreate() {
           <input
             style={input}
             placeholder="Ej: Material de Escritura"
-            value={newCat.name}
-            onChange={(e)=>setNewCat(s => ({ ...s, name: e.target.value }))}
+            value={newCategory.description}
+            onChange={(e)=> setNewCategory(s=>({...2, description: e.target.value}))}
           />
-
-          {/* Si querés habilitar descripción e imagen de categoría, descomenta este bloque */}
-          {/*
-          <Label style={{ marginTop: 12 }}>Descripción (opcional)</Label>
-          <textarea
-            style={{ ...input, minHeight: 72, resize: "vertical" }}
-            placeholder="Ej: Todo para escribir y dibujar"
-            value={newCat.description}
-            onChange={(e)=>setNewCat(s => ({ ...s, description: e.target.value }))}
-          />
-
-          <Label style={{ marginTop: 12 }}>Imagen de la Categoría (opcional)</Label>
-          <input
-            ref={catFileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={onPickCatFile}
-          />
-          <div
-            style={uploaderBox}
-            onClick={openCatPicker}
-            role="button"
-            aria-label="Subir imagen de la categoría"
-            title="Subir imagen de la categoría"
-          >
-            {!catPreview ? (
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div>
-                <div><b>Sube una imagen</b> (opcional)</div>
-                <div style={{ fontSize: 12, color: palette.muted }}>PNG, JPG, GIF hasta 10MB</div>
-              </div>
-            ) : (
-              <img
-                src={catPreview}
-                alt="Vista previa categoría"
-                style={{ maxHeight: 120, borderRadius: 12, objectFit: "cover" }}
-              />
-            )}
-          </div>
-          */}
-
           <button
             style={{ ...button(true), marginTop: 12, opacity: submittingCategory ? 0.6 : 1 }}
-            onClick={createCategory}
+            onClick={()=>createNewCategory(newCategory)}
             disabled={submittingCategory}
           >
             {submittingCategory ? "Creando..." : "Crear Categoría"}
