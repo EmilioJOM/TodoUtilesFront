@@ -19,7 +19,7 @@ export default function AdminCreate() { //TODAVIA NO ESTA
 
   //estado del coso que va a crear
   const [form, setForm] = useState({
-    name: "", desc: "", price: "", stock: "", extraInfo: ""
+    name: "", desc: "", price: "", stock: "", extraInfo: "", cat: ""
   });
 
   // imagen de producto
@@ -90,19 +90,20 @@ export default function AdminCreate() { //TODAVIA NO ESTA
 
 
   const createNewProduct = async () => {
-    if (!form.name || !form.price || !form.stock || !form.extraInfo) {
-      alert("Completá nombre, descripcion, precio y stock");
+    if (!form.name || !form.price || !form.stock || !form.extraInfo || !form.cat) {
+      alert("Completá nombre, descripcion, precio, stock y categoria");
       return;
     }
     const auxi = {
         descripcion: form.name,                         
         stock: parseInt(form.stock, 10) || 0,
         price: parseFloat(form.price) || 0,
-        extraInfo: form.extraInfo
+        extraInfo: form.extraInfo,
+        category: form.cat
       };
     
     dispatch(createProduct(auxi))
-    setForm({name: "", price:"",stock:"",extraInfo:""})
+    setForm({name: "", price:"",stock:"",extraInfo:"",cat:""})
     }
 
     
@@ -173,7 +174,7 @@ export default function AdminCreate() { //TODAVIA NO ESTA
             onChange={(e)=>setForm({ ...form, name: e.target.value })}
           />
           
-          {/*este no funciona >:[*/}
+
           <Label style={{ marginTop: 12 }}>Descripción del Producto</Label>
           <textarea
             placeholder="Ej: Lápiz de grafito de alta calidad..."
