@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
-import { ProductsAPI } from "../api/index.jsx"; // <-- Agregar esta importación
+import { ProductsAPI } from "../api/index.jsx"; 
 import "./pagesStyles/Product.css"
 
 const Product = ({ store, id }) => {
@@ -13,7 +13,7 @@ const Product = ({ store, id }) => {
   const [qty, setQty] = useState(1);
 
   
-  // Nuevo: estados para admin
+
   const isAdmin = store?.isAdmin?.() === true;
   const [deltaStock, setDeltaStock] = useState(0);
   const [savingStock, setSavingStock] = useState(false);
