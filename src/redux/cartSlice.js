@@ -68,7 +68,7 @@ const initialState = {
   error: null,
 };
 
-// 📌 NUEVO: función para recalcular totals
+
 const recalcTotals = (state) => {
   state.subtotal = state.items.reduce(
     (acc, p) => acc + p.price * p.quantity,
@@ -85,9 +85,8 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      //---------------------------------------
-      // GET CART
-      //---------------------------------------
+
+      // GET CARIT
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -103,9 +102,7 @@ const cartSlice = createSlice({
         state.error = action.error.message;
       })
 
-      //---------------------------------------
-      // LIST PRODUCTS
-      //---------------------------------------
+      // LISTA DE PRODUCTOS
       .addCase(fetchCartProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -120,9 +117,7 @@ const cartSlice = createSlice({
         state.error = action.error.message;
       })
 
-      //---------------------------------------
-      // ADD PRODUCT
-      //---------------------------------------
+      // AGREGAR PRODUCTO
       .addCase(addProductToCart.fulfilled, (state, action) => {
         const { productId, quantity } = action.meta.arg;
         const existing = state.items.find((i) => i.productId === productId);
@@ -133,9 +128,7 @@ const cartSlice = createSlice({
         recalcTotals(state);
       })
 
-      //---------------------------------------
-      // UPDATE QUANTITY
-      //---------------------------------------
+      //ACTUALIZAR CANTIDAD
       .addCase(updateProductQuantity.fulfilled, (state, action) => {
         const { productId, quantity } = action.meta.arg;
         const item = state.items.find((i) => i.productId === productId);
@@ -143,9 +136,7 @@ const cartSlice = createSlice({
         recalcTotals(state);
       })
 
-      //---------------------------------------
-      // REMOVE PRODUCT
-      //---------------------------------------
+      //ELIMINAR DEL CARRITO
       .addCase(removeProductFromCart.fulfilled, (state, action) => {
         state.items = state.items.filter(
           (i) => i.productId !== action.payload
@@ -153,9 +144,7 @@ const cartSlice = createSlice({
         recalcTotals(state);
       })
 
-      //---------------------------------------
-      // PURCHASE
-      //---------------------------------------
+      //
       .addCase(purchaseCart.fulfilled, (state) => {
         state.items = [];
         state.subtotal = 0;
