@@ -40,13 +40,6 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
           <div className="carousel-wrap">
             <div
               className="product-carousel"
-              onWheel={(e) => {
-                const el = e.currentTarget;
-                if (el.scrollWidth > el.clientWidth) {
-                  e.preventDefault();
-                  el.scrollLeft += e.deltaY;
-                }
-              }}
             >
               {products.slice(0, 10).map((p) => (
                 <ProductCard key={p.id} product={p} onAdd={store.add} />
