@@ -1,83 +1,88 @@
+// src/pages/Register.jsx
 import React, { useState } from "react";
-import useStore from "../store/UseStore.jsx";
-import "./pagesStyles/Register.css";
+import { useDispatch, useSelector } from "react-redux";
+import CenteredCard from "../components/CenteredCard.jsx";
+import { input, button } from "../utils/styles.jsx";
+import { registerUser } from "../redux/authSlice.js";
 
 export default function Register() {
-  const [f, setF] = useState({ name: "", last: "", email: "", pass: "", pass2: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((s) => s.auth);
 
-  const valid = f.name && f.email && f.pass && f.pass === f.pass2;
-  const store = useStore();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
 
-  const handleRegister = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      await store.register({
-        firstname: f.name,
-        lastname: f.last,
-        email: f.email,
-        password: f.pass,
+  const onSubmit = (e) => {
+    e.preventDefault();
+    dispatch(registerUser(form))
+      .unwrap()
+      .then(() => {
+        window.location.hash = "#/";
+      })
+      .catch(() => {
+        /* El error ya está en Redux */
       });
-      window.location.hash = "#/";
-    } catch (e) {
-      setError(e?.message || "El registro falló. Verifica los datos.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
-    <div className="register">
-      <div>
-        <h2>Crear Cuenta</h2>
-
-        <div className="register-names">
-          <input
-            placeholder="Nombre"
-            value={f.name}
-            onChange={(e) => setF({ ...f, name: e.target.value })}
-          />
-          <input
-            placeholder="Apellido"
-            value={f.last}
-            onChange={(e) => setF({ ...f, last: e.target.value })}
-          />
-        </div>
-
+    <CenteredCard title="Crear cuenta">
+      <form onSubmit={onSubmit}>
         <input
-          placeholder="Correo electrónico"
-          value={f.email}
-          onChange={(e) => setF({ ...f, email: e.target.value })}
+          style={input}
+          placeholder="Nombre"
+          value={form.firstName}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, firstName: e.target.value }))
+          }
         />
+
         <input
+          style={{ ...input, marginTop: 10 }}
+          placeholder="Apellido"
+          value={form.lastName}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, lastName: e.target.value }))
+          }
+        />
+
+        <input
+          style={{ ...input, marginTop: 10 }}
+          placeholder="Email"
+          type="email"
+          value={form.email}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, email: e.target.value }))
+          }
+        />
+
+        <input
+          style={{ ...input, marginTop: 10 }}
           placeholder="Contraseña"
           type="password"
-          value={f.pass}
-          onChange={(e) => setF({ ...f, pass: e.target.value })}
-        />
-        <input
-          placeholder="Confirmar contraseña"
-          type="password"
-          value={f.pass2}
-          onChange={(e) => setF({ ...f, pass2: e.target.value })}
+          value={form.password}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, password: e.target.value }))
+          }
         />
 
-        {error && <div className="register-error">{error}</div>}
+        {error && (
+          <div style={{ marginTop: 10, color: "red", fontSize: 13 }}>
+            {error}
+          </div>
+        )}
 
         <button
-          className="register-button"
-          onClick={handleRegister}
-          disabled={!valid || loading}
+          type="submit"
+          style={{ ...button(true), marginTop: 15, opacity: loading ? 0.6 : 1 }}
+          disabled={loading}
         >
-          {loading ? "Creando…" : "Registrarse"}
+          {loading ? "Creando cuenta..." : "Registrarse"}
         </button>
-
-        <div className="register-footer">
-          ¿Ya tienes una cuenta? <a href="#/login">Inicia sesión</a>
-        </div>
-      </div>
-    </div>
+      </form>
+    </CenteredCard>
   );
 }

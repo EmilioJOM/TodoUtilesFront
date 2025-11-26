@@ -1,57 +1,70 @@
 // src/pages/Coupons.jsx
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { wrap, card, input, button, palette } from "../utils/styles.jsx";
-import { CouponsAPI } from "../api/index.jsx";
+import {
+  fetchCoupons,
+  createCoupon,
+  deleteCoupon,
+} from "../redux/couponsSlice.js";
 
 export default function Coupons() {
-  const [list, setList] = useState([]);
-  const [saving, setSaving] = useState(false);
+  const dispatch = useDispatch();
+  const { items: list, loading, error } = useSelector((s) => s.coupons);
+
   const [form, setForm] = useState({
-    cupon: "",        // código (string)
-    descuento: "",    // número
-    tipo: "porcentaje", // "porcentaje" | "monto"
-    validez: "",      // "YYYY-MM-DDTHH:mm"
+    cupon: "",
+    descuento: "",
+    tipo: "porcentaje",
+    validez: "",
   });
-  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  async function load() {
-    try {
-      const data = await CouponsAPI.list(); // GET /cupones
-      setList(data);
-    } catch (e) { setError(e?.message || "No se pudieron cargar los cupones"); }
-  }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    dispatch(fetchCoupons());
+  }, [dispatch]);
 
-  async function create() {
-    setSaving(true); setError("");
-    try {
-      const body = {
-        cupon: form.cupon.trim().toUpperCase(),
-        descuento: parseInt(form.descuento || "0", 10),
-        tipo: form.tipo,
-        // LocalDateTime ISO: 2025-12-31T23:59
-        validez: form.validez ? `${form.validez}:00` : null,
-      };
-      await CouponsAPI.create(body);    // POST /cupones
-      setForm({ cupon: "", descuento: "", tipo: "porcentaje", validez: "" });
-      await load();
-    } catch (e) { setError(e?.message || "No se pudo crear el cupón"); }
-    finally { setSaving(false); }
-  }
+  const onCreate = (e) => {
+    e.preventDefault();
+    setSaving(true);
 
-  async function remove(idCupon) {
+    const body = {
+      cupon: form.cupon.trim().toUpperCase(),
+      descuento: parseInt(form.descuento || "0", 10),
+      tipo: form.tipo,
+      validez: form.validez ? `${form.validez}:00` : null,
+    };
+
+    dispatch(createCoupon(body))
+      .unwrap()
+      .then(() => {
+        setForm({
+          cupon: "",
+          descuento: "",
+          tipo: "porcentaje",
+          validez: "",
+        });
+      })
+      .finally(() => setSaving(false));
+  };
+
+  const onDelete = (idCupon) => {
     if (!window.confirm("¿Eliminar este cupón?")) return;
-    try { await CouponsAPI.remove(idCupon); await load(); } // DELETE /cupones/{id}
-    catch (e) { setError(e?.message || "No se pudo eliminar"); }
-  }
+    dispatch(deleteCoupon(idCupon));
+  };
 
   const Row = ({ children, head }) => (
-    <div style={{
-      display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.5fr 0.6fr",
-      padding: "14px 16px",
-      borderBottom: `1px solid ${palette.border}`,
-      fontWeight: head ? 700 : 400
-    }}>{children}</div>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr 1fr 1.5fr 0.6fr",
+        padding: "14px 16px",
+        borderBottom: `1px solid ${palette.border}`,
+        fontWeight: head ? 700 : 400,
+      }}
+    >
+      {children}
+    </div>
   );
 
   return (
@@ -64,47 +77,105 @@ export default function Coupons() {
           <h3 style={{ marginTop: 0 }}>Crear Nuevo Cupón</h3>
 
           <Label>Código</Label>
-          <input style={input} placeholder="DESCUENTO10"
-                 value={form.cupon} onChange={(e)=>setForm({...form, cupon:e.target.value})} />
+          <input
+            style={input}
+            placeholder="DESCUENTO10"
+            value={form.cupon}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, cupon: e.target.value }))
+            }
+          />
 
-          <Label style={{ marginTop: 10 }}>Tipo</Label>
-          <select style={input} value={form.tipo} onChange={(e)=>setForm({...form, tipo:e.target.value})}>
-            <option value="porcentaje">Porcentaje (%)</option>
+          <Label>Descuento</Label>
+          <input
+            style={input}
+            type="number"
+            placeholder="10"
+            value={form.descuento}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, descuento: e.target.value }))
+            }
+          />
+
+          <Label>Tipo</Label>
+          <select
+            style={{ ...input, appearance: "none" }}
+            value={form.tipo}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, tipo: e.target.value }))
+            }
+          >
+            <option value="porcentaje">% Porcentaje</option>
             <option value="monto">Monto fijo</option>
           </select>
 
-          <Label style={{ marginTop: 10 }}>{form.tipo === "porcentaje" ? "Descuento (%)" : "Descuento (monto)"}</Label>
-          <input style={input} placeholder={form.tipo === "porcentaje" ? "10" : "500"}
-                 value={form.descuento} onChange={(e)=>setForm({...form, descuento:e.target.value})} />
+          <Label>Validez (fecha y hora)</Label>
+          <input
+            style={input}
+            type="datetime-local"
+            value={form.validez}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, validez: e.target.value }))
+            }
+          />
 
-          <Label style={{ marginTop: 10 }}>Validez (fecha y hora)</Label>
-          <input type="datetime-local" style={input}
-                 value={form.validez}
-                 onChange={(e)=>setForm({...form, validez:e.target.value})} />
+          {error && (
+            <div style={{ marginTop: 8, color: "red", fontSize: 13 }}>
+              {error}
+            </div>
+          )}
 
-          {!!error && <div style={{ color: "#b91c1c", marginTop: 8 }}>{error}</div>}
-          <button style={{ ...button(true), marginTop: 12 }} onClick={create} disabled={saving}>
-            {saving ? "Guardando…" : "➕  Crear Cupón"}
+          <button
+            style={{
+              ...button(true),
+              marginTop: 12,
+              opacity: saving || loading ? 0.6 : 1,
+            }}
+            onClick={onCreate}
+            disabled={saving || loading}
+          >
+            {saving ? "Creando..." : "Crear Cupón"}
           </button>
         </div>
 
-        {/* Lista */}
-        <div style={{ ...card }}>
-          <div style={{ padding: 16 }}>
-            <h3 style={{ margin: 0 }}>Cupones</h3>
-          </div>
-          <Row head>
-            <div>CÓDIGO</div><div>TIPO</div><div>DESCUENTO</div><div>VÁLIDO HASTA</div><div></div>
-          </Row>
-          {list.map(c => (
-            <Row key={c.idCupon}>
-              <div style={{ fontWeight: 700 }}>{c.cupon}</div>
-              <div>{c.tipo}</div>
-              <div>{c.descuento}{c.tipo === "porcentaje" ? "%" : ""}</div>
-              <div>{c.validez?.replace("T"," ") || "—"}</div>
-              <div><button onClick={()=>remove(c.idCupon)} style={{ ...button(false), padding: "6px 10px" }}>🗑️ ELIM</button></div>
-            </Row>
-          ))}
+        {/* Listado */}
+        <div style={{ ...card, padding: 16 }}>
+          <h3 style={{ marginTop: 0 }}>Cupones existentes</h3>
+
+          {loading ? (
+            <div>Cargando cupones…</div>
+          ) : list.length === 0 ? (
+            <div>No hay cupones aún.</div>
+          ) : (
+            <>
+              <Row head>
+                <div>Código</div>
+                <div>Descuento</div>
+                <div>Tipo</div>
+                <div>Validez</div>
+                <div>Acciones</div>
+              </Row>
+              {list.map((c) => (
+                <Row key={c.idCupon}>
+                  <div>{c.cupon}</div>
+                  <div>
+                    {c.descuento}
+                    {c.tipo === "porcentaje" ? "%" : ""}
+                  </div>
+                  <div>{c.tipo}</div>
+                  <div>{c.validez?.replace("T", " ") || "—"}</div>
+                  <div>
+                    <button
+                      onClick={() => onDelete(c.idCupon)}
+                      style={{ ...button(false), padding: "6px 10px" }}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                </Row>
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -112,5 +183,7 @@ export default function Coupons() {
 }
 
 const Label = ({ children }) => (
-  <div style={{ fontSize: 13, color: palette.muted, margin: "8px 0 6px" }}>{children}</div>
+  <div style={{ fontSize: 13, color: palette.muted, margin: "8px 0 6px" }}>
+    {children}
+  </div>
 );

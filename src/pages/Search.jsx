@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice.js";
 import {setFilterCategory} from "../redux/categorySlice.js";
 
-const Search = ({ store, queryFromNav}) => {
+const Search = ({queryFromNav}) => {
 
   const dispatch=useDispatch()
   const {items: products,error:productError,loading:productLoading} = useSelector((state)=>state.products)
@@ -49,7 +49,9 @@ const Search = ({ store, queryFromNav}) => {
 
 
 if (productLoading) return <p>Cargando productos...</p>
-if (productError) return <p>Error al cargar los productos: {error}</p>
+if (productError)
+  return <p>Error al cargar los productos: {productError}</p>;
+
   return (
     <div style={{ ...wrap }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
@@ -140,7 +142,7 @@ if (productError) return <p>Error al cargar los productos: {error}</p>
         }}
       >
         {list.map((p) => ( //muestro los productos que se filtraron antes, en ProductCard's
-          <ProductCard key={p.id} product={p} onAdd={store.add} />
+          <ProductCard key={p.id} product={p} />
         ))}
       </div>
       )

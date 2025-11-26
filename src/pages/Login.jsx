@@ -1,64 +1,66 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CenteredCard from "../components/CenteredCard.jsx";
-import { input, button, palette } from "../utils/styles.jsx";
-import useStore from "../store/UseStore.jsx";
-import "./pagesStyles/Login.css"
+import { input, button } from "../utils/styles.jsx";
+import { loginUser } from "../redux/authSlice.js";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [pass, setPass]   = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading, error, user } = useSelector((s) => s.auth);
 
-  const store = useStore();
+  const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleLogin = async () => {
-    setError(""); setLoading(true);
-    try {
-      await store.login({ email, password: pass });
-      window.location.hash = "#/";
-    } catch (e) {
-      setError(e?.message || "Usuario o contraseña incorrecta");
-    } finally {
-      setLoading(false);
-    }
+  const onSubmit = (e) => {
+    e.preventDefault();
+    dispatch(loginUser(form))
+      .unwrap()
+      .then(() => {
+        window.location.hash = "#/"; // o navigate, como lo tengas
+      })
+      .catch(() => {
+        // el error ya queda en el slice
+      });
   };
 
   return (
-    <div className="login">
-      <div>
-        <h2>Iniciar Sesión</h2>
-        <input
-          style={{...input, width:"90%"}}
-          placeholder="Correo electrónico o nombre de usuario"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          style={{ ...input, marginTop: 10, width:"90%" }}
-          placeholder="Contraseña"
-          type="password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-        />
-
-        {error && <div style={{ color: "red", fontSize: 13, marginTop: 8 }}>{error}</div>}
-
-        
-
-        <button
-  className="login-button"
-  onClick={handleLogin}
-  disabled={loading}
->
-  {loading ? "Ingresando…" : "Iniciar Sesión"}
-</button>
-
-
-        <div style={{ fontSize: 13, marginTop: 10, color: palette.muted }}>
-          ¿No tienes una cuenta? <a href="#/register">Regístrate</a>
+    <CenteredCard title="Iniciar sesión">
+      <form onSubmit={onSubmit}>
+        <div>
+          <input
+            style={input}
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, email: e.target.value }))
+            }
+          />
         </div>
-      </div>
-    </div>
+        <div style={{ marginTop: 8 }}>
+          <input
+            style={input}
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, password: e.target.value }))
+            }
+          />
+        </div>
+        {error && (
+          <div style={{ color: "red", marginTop: 8, fontSize: 13 }}>
+            {error}
+          </div>
+        )}
+        <button
+          type="submit"
+          style={{ ...button(true), marginTop: 12, opacity: loading ? 0.6 : 1 }}
+          disabled={loading}
+        >
+          {loading ? "Ingresando..." : "Ingresar"}
+        </button>
+      </form>
+    </CenteredCard>
   );
 }

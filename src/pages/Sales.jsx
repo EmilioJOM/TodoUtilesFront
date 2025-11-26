@@ -1,7 +1,13 @@
+// src/pages/Sales.jsx
 import React, { useMemo, useState, useEffect } from "react";
-import { SalesAPI } from "../api/index.jsx";
+import { useDispatch, useSelector } from "react-redux";
 import PurchaseDetailModal from "../components/PurchaseDetailsModal.jsx";
 import "./pagesStyles/Sales.css";
+import {
+  fetchSales,
+  fetchSaleDetails,
+  clearDetails,
+} from "../redux/salesSlice.js";
 
 const currency = (n) => `$${n.toFixed(2)}`;
 
@@ -21,38 +27,34 @@ const Status = ({ s }) => {
 };
 
 export default function Sales() {
+  const dispatch = useDispatch();
   const [q, setQ] = useState("");
-  const [data, setData] = useState([]);
-  const [forbidden, setForbidden] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [selectedSale, setSelectedSale] = useState(null);
 
-  async function openDetails(idVenta) {
-    const data = await SalesAPI.details(idVenta);
-    setSelectedSale(data);
-  }
+  const { items, loadingList, errorList, details } = useSelector(
+    (s) => s.sales
+  );
 
+  // cargar ventas al montar
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await SalesAPI.list();
-        const mapped = r.map((v) => ({
-          idVenta: v.idVenta,
-          id: "#" + v.idVenta,
-          user: v.nombreUsuario || "(usuario desconocido)",
-          date: v.fecha ? new Date(v.fecha).toLocaleDateString("es-AR") : "—",
-          total: v.total,
-          status: v.estado || "—",
-          method: v.metodoPago || "—",
-        }));
-        setData(mapped);
-      } catch (err) {
-        if (err?.status === 403) setForbidden(true);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    dispatch(fetchSales());
+  }, [dispatch]);
+
+  // mapeo de datos crudos -> estructura usada por la tabla (como antes)
+  const data = useMemo(
+    () =>
+      (items || []).map((v) => ({
+        idVenta: v.idVenta,
+        id: "#" + v.idVenta,
+        user: v.nombreUsuario || "(usuario desconocido)",
+        date: v.fecha
+          ? new Date(v.fecha).toLocaleDateString("es-AR")
+          : "—",
+        total: v.total,
+        status: v.estado || "—",
+        method: v.metodoPago || "—",
+      })),
+    [items]
+  );
 
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -63,14 +65,15 @@ export default function Sales() {
     );
   }, [q, data]);
 
-  if (loading) return <div className="sales-loading">Cargando ventas…</div>;
+  const openDetails = (idVenta) => {
+    dispatch(fetchSaleDetails(idVenta));
+  };
 
-  if (forbidden)
-    return (
-      <div className="sales-error">
-        ❌ No tenés permisos para ver esta sección.
-      </div>
-    );
+  if (loadingList)
+    return <div className="sales-loading">Cargando ventas…</div>;
+
+  if (errorList)
+    return <div className="sales-error">Error: {errorList}</div>;
 
   return (
     <div className="sales-container">
@@ -125,9 +128,9 @@ export default function Sales() {
       </div>
 
       <PurchaseDetailModal
-        open={!!selectedSale}
-        sale={selectedSale}
-        onClose={() => setSelectedSale(null)}
+        open={!!details}
+        sale={details}
+        onClose={() => dispatch(clearDetails())}
       />
     </div>
   );

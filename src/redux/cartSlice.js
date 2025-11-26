@@ -1,14 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { request } from "../api/http.jsx";   
+import { CartAPI } from "../api/cart.jsx"; 
 
 //---------------------------------------
 // THUNKS
 //---------------------------------------
 
-export const fetchCart = createAsyncThunk("cart/fetchCart", async () => {
-  const data = await request("/carts/cart");
-  return data;
-});
+export const fetchCart = createAsyncThunk(
+  "cart/fetchCart",
+  async (_, { rejectWithValue }) => {
+    try {
+      const cart = await CartAPI.getOrCreate();
+      const products = await CartAPI.listProducts();
+      return { cart, products };
+    } catch (err) {
+      if (err.status === 401 || err.status === 403) {
+        // usuario no logueado → no es un error fatal, volvemos carrito vacío
+        return rejectWithValue({ code: err.status, silent: true });
+      }
+      return rejectWithValue({ message: err.message || "Error cargando carrito" });
+    }
+  }
+);
+
 
 export const fetchCartProducts = createAsyncThunk(
   "cart/fetchCartProducts",
@@ -20,12 +34,32 @@ export const fetchCartProducts = createAsyncThunk(
 
 export const addProductToCart = createAsyncThunk(
   "cart/addProductToCart",
-  async ({ productId, quantity }) => {
-    const data = await request(`/carts/add/${productId}`, {
-      method: "POST",
-      query: { quantity },
-    });
-    return { productId, quantity, message: data };
+  async ({ productId, quantity = 1 }, { dispatch, rejectWithValue }) => {
+    try {
+      // Llama al backend para agregar el producto
+      await CartAPI.add(productId, quantity);
+      // Después de agregar, recargamos los productos del carrito
+      await dispatch(fetchCartProducts());
+      return;
+    } catch (err) {
+      console.error("Error agregando al carrito", err);
+      return rejectWithValue(
+        err?.message || "Error al agregar producto al carrito"
+      );
+    }
+  }
+);
+
+
+export const addToCart = createAsyncThunk(
+  "cart/addToCart",
+  async ({ productId, quantity }, { rejectWithValue }) => {
+    try {
+      const res = await CartAPI.add(productId, quantity);
+      return res;
+    } catch (err) {
+      return rejectWithValue(err.message || "No se pudo agregar al carrito");
+    }
   }
 );
 
@@ -93,9 +127,10 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.cartId = action.payload.cartId;
-        state.subtotal = action.payload.subtotal || 0;
-        state.total = action.payload.subtotal || 0;
+        const { cart, products } = action.payload;
+        state.cartId = cart.id ?? cart.cartId ?? null;
+        state.items = products ?? [];
+        recalcTotals(state);
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
@@ -115,17 +150,6 @@ const cartSlice = createSlice({
       .addCase(fetchCartProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      })
-
-      // AGREGAR PRODUCTO
-      .addCase(addProductToCart.fulfilled, (state, action) => {
-        const { productId, quantity } = action.meta.arg;
-        const existing = state.items.find((i) => i.productId === productId);
-
-        if (existing) {
-          existing.quantity += quantity;
-        }
-        recalcTotals(state);
       })
 
       //ACTUALIZAR CANTIDAD
@@ -149,6 +173,16 @@ const cartSlice = createSlice({
         state.items = [];
         state.subtotal = 0;
         state.total = 0;
+      })
+      .addCase(addProductToCart.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addProductToCart.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(addProductToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "No se pudo agregar al carrito";
       });
   },
 });

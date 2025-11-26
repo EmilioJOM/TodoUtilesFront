@@ -1,20 +1,23 @@
 // src/pages/Product.jsx
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
-import { ProductsAPI } from "../api/index.jsx"; 
-import "./pagesStyles/Product.css"
+import { ProductsAPI } from "../api/index.jsx";
+import { addProductToCart } from "../redux/cartSlice.js";
+import "./pagesStyles/Product.css";
 
-const Product = ({ store, id }) => {
+const Product = ({ id }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.auth.user);
+  const isAdmin = user?.role === "ADMIN" || user?.role === "ROLE_ADMIN";
+
   const URL = `http://localhost:4002/api/productos/${id}`;
   const [product, setProduct] = useState();
   const [mainImage, setMainImage] = useState(0);
   const [qty, setQty] = useState(1);
 
-  
-
-  const isAdmin = store?.isAdmin?.() === true;
   const [deltaStock, setDeltaStock] = useState(0);
   const [savingStock, setSavingStock] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -28,18 +31,24 @@ const Product = ({ store, id }) => {
       .catch((e) => console.error("Error:", e));
   }, [id]);
 
-  if (!product) return <div style={{ ...wrap, marginTop: 24 }}>Producto no encontrado.</div>;
+  if (!product)
+    return (
+      <div style={{ ...wrap, marginTop: 24 }}>
+        Producto no encontrado.
+      </div>
+    );
 
-  // Nuevo: handlers admin
+  // --- Admin: modificar stock ---
   async function applyStockDelta() {
-    setError(""); 
+    setError("");
     const n = parseInt(deltaStock, 10);
-    if (!Number.isFinite(n) || n === 0) { setError("Ingresá un número distinto de 0."); return; }
+    if (!Number.isFinite(n) || n === 0) {
+      setError("Ingresá un número distinto de 0.");
+      return;
+    }
     try {
       setSavingStock(true);
-      // el endpoint suma/resta stock según el signo
       await ProductsAPI.addStock({ id: product.id, stock: n });
-      // refrescar UI localmente sin volver a pedir
       setProduct((p) => ({ ...p, stock: (p.stock || 0) + n }));
       setDeltaStock(0);
     } catch (e) {
@@ -49,14 +58,19 @@ const Product = ({ store, id }) => {
     }
   }
 
+  // --- Admin: borrar producto ---
   async function deleteProduct() {
     setError("");
-    if (!window.confirm("¿Eliminar este producto? Esta acción no se puede deshacer.")) return;
+    if (
+      !window.confirm(
+        "¿Eliminar este producto? Esta acción no se puede deshacer."
+      )
+    )
+      return;
     try {
       setDeleting(true);
       await ProductsAPI.remove(product.id);
       alert("Producto eliminado");
-      // Volver al listado
       window.location.hash = "#/search";
     } catch (e) {
       setError(e?.message || "No se pudo eliminar el producto");
@@ -65,15 +79,48 @@ const Product = ({ store, id }) => {
     }
   }
 
+  // --- Agregar al carrito (Redux) ---
+  const handleAddToCart = () => {
+    // si no hay usuario, podrías redirigir a login si querés
+    dispatch(addProductToCart({ productId: product.id, quantity: qty }));
+
+    // animación del botoncito (igual que antes)
+    const checkbox = document.getElementById(`cart-toggle-${product.id}`);
+    if (checkbox) {
+      checkbox.checked = true;
+      setTimeout(() => {
+        checkbox.checked = false;
+      }, 1500);
+    }
+  };
+
   return (
-    <div style={{ ...wrap, marginTop: 8, display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24 }}>
+    <div
+      style={{
+        ...wrap,
+        marginTop: 8,
+        display: "grid",
+        gridTemplateColumns: "1.2fr 1fr",
+        gap: 24,
+      }}
+    >
       <div style={{ ...card, padding: 16, minHeight: 340 }}>
         {/* Imagen grande */}
         <img
-          src={product.images?.length > 0 ? product.images[mainImage] : "public/imagenPlaceholder.jpg"}
+          src={
+            product.images?.length > 0
+              ? product.images[mainImage]
+              : "/imagenPlaceholder.jpg"
+          }
           alt={product.description}
-          style={{ height: 300, width: "100%", objectFit: "cover", borderRadius: 12 }}
+          style={{
+            height: 300,
+            width: "100%",
+            objectFit: "cover",
+            borderRadius: 12,
+          }}
         />
+
         {/* Thumbnails */}
         {product.images?.length > 1 && (
           <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
@@ -84,8 +131,13 @@ const Product = ({ store, id }) => {
                 alt={`Miniatura ${idx + 1}`}
                 onClick={() => setMainImage(idx)}
                 style={{
-                  flex: 1, height: 70, borderRadius: 10, objectFit: "cover",
-                  cursor: "pointer", border: mainImage === idx ? "2px solid #3b82f6" : "none"
+                  flex: 1,
+                  height: 70,
+                  borderRadius: 10,
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  border:
+                    mainImage === idx ? "2px solid #3b82f6" : "none",
                 }}
               />
             ))}
@@ -96,79 +148,100 @@ const Product = ({ store, id }) => {
       <div style={{ ...card, padding: 16 }}>
         <h1 style={{ margin: 0 }}>{product.description}</h1>
         <div style={{ marginTop: 12 }}>
-
-          {product.extraInfo!=null ? (
-            <p>{product.extraInfo}</p>
-          ) : (
-            <></>
-          )
-        }
+          {product.extraInfo != null && <p>{product.extraInfo}</p>}
 
           <Row label="Precio" value={<b>{currency(product.price)}</b>} />
           <Row label="Stock" value={`${product.stock} unidades`} />
           <Row
             label="Categoría(s)"
             value={
-              Array.isArray(product.categories) && product.categories.length > 0
-                ? product.categories.map(c=>c.description).join(", ")
+              Array.isArray(product.categories) &&
+              product.categories.length > 0
+                ? product.categories.map((c) => c.description).join(", ")
                 : "Sin categoría"
             }
           />
         </div>
 
         {/* Compra */}
-<div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center" }}>
-  <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={button(false)}>
-    -
-  </button>
-  <div style={{ ...input, width: 60, textAlign: "center" }}>{qty}</div>
-  <button onClick={() => setQty((q) => q + 1)} style={button(false)}>
-    +
-  </button>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            marginTop: 14,
+            alignItems: "center",
+          }}
+        >
+          <button
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            style={button(false)}
+          >
+            -
+          </button>
+          <div style={{ ...input, width: 60, textAlign: "center" }}>
+            {qty}
+          </div>
+          <button
+            onClick={() => setQty((q) => q + 1)}
+            style={button(false)}
+          >
+            +
+          </button>
 
-  <input hidden className="cart-toggle" id={`cart-toggle-${product.id}`} type="checkbox" />
-  <label
-    className="cart-button"
-    htmlFor={`cart-toggle-${product.id}`}
-    onClick={() => {
-      store.addToCart(product.id, qty);
+          <input
+            hidden
+            className="cart-toggle"
+            id={`cart-toggle-${product.id}`}
+            type="checkbox"
+          />
+          <label
+            className="cart-button"
+            htmlFor={`cart-toggle-${product.id}`}
+            onClick={handleAddToCart}
+          >
+            <span className="cart-icon">
+              <svg
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle r="1" cy="21" cx="9"></circle>
+                <circle r="1" cy="21" cx="20"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+            </span>
+            Agregar al carrito
+            <div className="progress-bar"></div>
+          </label>
+        </div>
 
-      const checkbox = document.getElementById(`cart-toggle-${product.id}`);
-      checkbox.checked = true;
-      setTimeout(() => {
-        checkbox.checked = false;
-      }, 1500);
-    }}
-  >
-    <span className="cart-icon">
-      <svg
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        strokeWidth="2"
-        stroke="currentColor"
-        fill="none"
-        viewBox="0 0 24 24"
-        height="24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle r="1" cy="21" cx="9"></circle>
-        <circle r="1" cy="21" cx="20"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
-    </span>
-    Agregar al carrito
-    <div className="progress-bar"></div>
-  </label>
-</div>
-
-        {/* NUEVO: Panel ADMIN */}
+        {/* Panel ADMIN */}
         {isAdmin && (
-          <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid #eee" }}>
-            <div style={{ fontWeight: 800, marginBottom: 8 }}>Panel de administración</div>
+          <div
+            style={{
+              marginTop: 18,
+              paddingTop: 14,
+              borderTop: "1px solid #eee",
+            }}
+          >
+            <div style={{ fontWeight: 800, marginBottom: 8 }}>
+              Panel de administración
+            </div>
 
             {/* Ajuste de stock */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                gap: 8,
+              }}
+            >
               <input
                 style={input}
                 placeholder="Ej: +10 para sumar, -3 para restar"
@@ -189,14 +262,23 @@ const Product = ({ store, id }) => {
             <button
               onClick={deleteProduct}
               disabled={deleting}
-              style={{ ...button(false), marginTop: 10, background: "#fee2e2", border: "1px solid #ef4444" }}
+              style={{
+                ...button(false),
+                marginTop: 10,
+                background: "#fee2e2",
+                border: "1px solid #ef4444",
+              }}
               title="Eliminar este producto"
             >
               {deleting ? "Eliminando…" : "🗑️ Eliminar producto"}
             </button>
 
             {/* Errores */}
-            {!!error && <div style={{ color: "#b91c1c", marginTop: 8 }}>{error}</div>}
+            {!!error && (
+              <div style={{ color: "#b91c1c", marginTop: 8 }}>
+                {error}
+              </div>
+            )}
           </div>
         )}
       </div>

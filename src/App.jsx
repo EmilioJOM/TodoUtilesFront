@@ -1,5 +1,6 @@
+// src/App.jsx
 import React, { useEffect, useState } from "react";
-import { palette, appBg } from "./utils/styles.jsx";
+import { appBg } from "./utils/styles.jsx";
 import Nav from "./components/Nav.jsx";
 import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
@@ -12,63 +13,89 @@ import About from "./pages/About.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { useHashRoute } from "./utils/Router.jsx";
-import useStore from "./store/UseStore.jsx";
 import AdminCreate from "./pages/AdminCreate.jsx";
 import Sales from "./pages/Sales.jsx";
 import Coupons from "./pages/Coupons.jsx";
-import "./App.css";
 import Purchases from "./pages/Purchases.jsx";
+import "./App.css";
 
-
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { hydrateAuthFromStorage } from "./redux/authSlice";
+import { fetchCart, fetchCartProducts } from "./redux/cartSlice";
 
 export default function App() {
-const route = useHashRoute();
-const store = useStore();
-useEffect(() => { store.hydrate(); store.loadCart(); }, []);
-const [navQuery, setNavQuery] = useState("");
+  const route = useHashRoute();
 
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.auth.user);
 
-const page = (() => {
-if (!route.path) return <Home store={store} />;
-switch (route.path) {
-case "admin":
-if (!store.isAdmin()) return <div style={{ padding: 24 }}>No autorizado.</div>;
-if (route.rest[0] === "new") return <AdminCreate />;
-if (route.rest[0] === "sales") return <Sales />;
-if (route.rest[0] === "coupons") return <Coupons />;
-return <div style={{ padding: 24 }}>Panel no encontrado.</div>;
+  const [navQuery, setNavQuery] = useState("");
 
-case "search":
-return <Search store={store} queryFromNav={navQuery} />;
-case "product":
-return <Product store={store} id={route.rest[0]} />;
-case "cart":
-return <Cart store={store} />;
-case "shipping":
-return <Shipping store={store} />;
-case "payment":
-return <Payment store={store} />;
-case "about":
-return <About />;
-case "login":    
-return <Login />;
-case "register": 
-return <Register />;
-case "purchases":
-return <Purchases />;
-default:
-return <div style={{ padding: 24 }}>Página no encontrada.</div>;
-}
-})();
+  // Ahora sólo usamos Redux para saber si es admin
+  const isAdmin =
+    user?.role === "ADMIN" ||
+    user?.role === "ROLE_ADMIN";
 
+  useEffect(() => {
+    dispatch(hydrateAuthFromStorage());
+    dispatch(fetchCart());
+    dispatch(fetchCartProducts());
+  }, [dispatch]);
 
-return (
-<div style={appBg}>
-    <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
-    <div style={{ paddingTop: 64 }}> 
+  const page = (() => {
+    // Home
+    if (!route.path) return <Home />;
+
+    switch (route.path) {
+      case "admin":
+        if (!isAdmin)
+          return <div style={{ padding: 24 }}>No autorizado.</div>;
+        if (route.rest[0] === "new") return <AdminCreate />;
+        if (route.rest[0] === "sales") return <Sales />;
+        if (route.rest[0] === "coupons") return <Coupons />;
+        return <div style={{ padding: 24 }}>Panel no encontrado.</div>;
+
+      case "search":
+        return <Search queryFromNav={navQuery} />;
+
+      case "product":
+        // Product usa sólo el id
+        return <Product id={route.rest[0]} />;
+
+      case "cart":
+        return <Cart />;
+
+      case "shipping":
+        return <Shipping />;
+
+      case "payment":
+        return <Payment />;
+
+      case "about":
+        return <About />;
+
+      case "login":
+        return <Login />;
+
+      case "register":
+        return <Register />;
+
+      case "purchases":
+        return <Purchases />;
+
+      default:
+        return <div style={{ padding: 24 }}>Página no encontrada.</div>;
+    }
+  })();
+
+  return (
+    <div style={appBg}>
+      <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
+      <div style={{ paddingTop: 64 }}>
         {page}
         <Footer />
+      </div>
     </div>
-</div>
-);
+  );
 }

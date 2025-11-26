@@ -1,9 +1,19 @@
+// src/redux/store.js
 import { configureStore } from "@reduxjs/toolkit";
-import productReducer from './productSlice'
-import categoryReducer from './categorySlice'
+import productsReducer from "./productSlice";
+import categoriesReducer from "./categorySlice";
 import cartReducer from "./cartSlice";
+import authReducer from "./authSlice";
+import couponsReducer from "./couponsSlice";
+import salesReducer from "./salesSlice";
 
 export const store = configureStore({
-    reducer: {products:productReducer , categories:categoryReducer, cart: cartReducer,} //aca se guardan todos los estados globales
-
-})
+  reducer: {
+    products: productsReducer,
+    categories: categoriesReducer,
+    cart: cartReducer,
+    auth: authReducer,
+    coupons: couponsReducer,
+    sales: salesReducer,
+  },
+});
