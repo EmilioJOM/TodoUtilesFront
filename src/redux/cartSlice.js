@@ -154,3 +154,13 @@ const cartSlice = createSlice({
 });
 
 export default cartSlice.reducer;
+
+export const selectCartItems = (state) => state.cart.items || [];
+export const selectCartSubtotal = (state) => state.cart.subtotal || 0;
+export const selectCartTotal = (state) => state.cart.total || 0;
+export const selectCartLoading = (state) => state.cart.loading;
+export const selectCartError = (state) => state.cart.error;
+
+// Si items trae { quantity }, esto funciona
+export const selectCartCount = (state) =>
+  (state.cart.items || []).reduce((acc, item) => acc + (item.quantity || 0), 0);

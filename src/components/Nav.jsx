@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { wrap, palette } from "../utils/styles.jsx";
-import SearchBox from "./SearchBox.jsx";
-import useStore from "../store/UseStore.jsx";
+
+import { useDispatch, useSelector } from "react-redux";
+import { logout, selectUser, selectIsAdmin } from "../redux/authSlice";
+// TODO: ajustá según tu cartSlice real
+import { selectCartCount } from "../redux/cartSlice";
 
 const A = ({ to, children, title, style }) => (
   <a
@@ -19,12 +22,14 @@ const A = ({ to, children, title, style }) => (
 );
 
 export default function Nav({ onSearch, q }) {
-  const { user, isAdmin, logout, cartCount } = useStore(); 
-  const admin = isAdmin();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const isAdmin = useSelector(selectIsAdmin);
+  const cartCount = useSelector(selectCartCount);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  
   useEffect(() => {
     const onDocClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -35,10 +40,10 @@ export default function Nav({ onSearch, q }) {
     return () => document.removeEventListener("click", onDocClick);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await dispatch(logout());
     setMenuOpen(false);
-    window.location.hash = "#/login"; // o "#/" si preferís volver a inicio
+    window.location.hash = "#/login";
   };
 
   return (
@@ -83,7 +88,8 @@ export default function Nav({ onSearch, q }) {
           <A to="#/">Inicio</A>
           <A to="#/search">Productos</A>
           <A to="#/about">Contacto</A>
-          {admin ? (
+
+          {isAdmin ? (
             <>
               <A to="#/admin/new">Nuevo</A>
               <A to="#/admin/sales">Ventas</A>
@@ -184,7 +190,7 @@ export default function Nav({ onSearch, q }) {
                   cursor: "pointer",
                 }}
               >
-                Hola, {user.name?.split(" ")[0] || "Usuario"} ▾
+                Hola, {user.firstName?.split(" ")[0] || "Usuario"} ▾
               </button>
 
               {menuOpen && (
@@ -203,10 +209,7 @@ export default function Nav({ onSearch, q }) {
                     zIndex: 1000,
                   }}
                 >
-                  <A
-                    to="#/account"
-                    style={{ display: "block", padding: "8px 10px" }}
-                  >
+                  <A to="#/account" style={{ display: "block", padding: "8px 10px" }}>
                     Mi cuenta
                   </A>
                   <button

@@ -1,30 +1,47 @@
-import React, { useState } from "react";
-import useStore from "../store/UseStore.jsx";
+import React, { useEffect, useState } from "react";
 import "./pagesStyles/Register.css";
 
+import { useDispatch, useSelector } from "react-redux";
+import { register, selectAuthStatus, selectAuthError, clearAuthError } from "../redux/authSlice";
+
 export default function Register() {
+  const dispatch = useDispatch();
+  const status = useSelector(selectAuthStatus);
+  const authError = useSelector(selectAuthError);
+
   const [f, setF] = useState({ name: "", last: "", email: "", pass: "", pass2: "" });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
+  const loading = status === "loading";
   const valid = f.name && f.email && f.pass && f.pass === f.pass2;
-  const store = useStore();
+
+  useEffect(() => {
+    // opcional: limpiamos error al entrar
+    dispatch(clearAuthError());
+    setError("");
+  }, [dispatch]);
+
+  useEffect(() => {
+    // si authSlice tira error, lo mostramos con el mismo estilo local
+    if (authError) setError(authError);
+  }, [authError]);
 
   const handleRegister = async () => {
     setError("");
-    setLoading(true);
-    try {
-      await store.register({
+    dispatch(clearAuthError());
+
+    const action = await dispatch(
+      register({
         firstname: f.name,
         lastname: f.last,
         email: f.email,
         password: f.pass,
-      });
+      })
+    );
+
+    // si fue OK, volvemos a home
+    if (register.fulfilled.match(action)) {
       window.location.hash = "#/";
-    } catch (e) {
-      setError(e?.message || "El registro falló. Verifica los datos.");
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -6,7 +6,6 @@ import Home from "./pages/Home.jsx";
 import Search from "./pages/Search.jsx";
 import Product from "./pages/Product.jsx";
 import Cart from "./pages/Cart.jsx";
-import Shipping from "./pages/Shipping.jsx";
 import Payment from "./pages/Payment.jsx";
 import About from "./pages/About.jsx";
 import Login from "./pages/Login.jsx";
@@ -18,57 +17,59 @@ import Sales from "./pages/Sales.jsx";
 import Coupons from "./pages/Coupons.jsx";
 import "./App.css";
 import Purchases from "./pages/Purchases.jsx";
+import { useSelector } from "react-redux";
+import { selectIsAdmin } from "./redux/authSlice";
 
 
 
 export default function App() {
-const route = useHashRoute();
-const store = useStore();
-useEffect(() => { store.hydrate(); store.loadCart(); }, []);
-const [navQuery, setNavQuery] = useState("");
+    const route = useHashRoute();
+    const store = useStore();
+    useEffect(() => { store.hydrate(); store.loadCart(); }, []);
+    const [navQuery, setNavQuery] = useState("");
+    const isAdmin = useSelector(selectIsAdmin);
 
 
-const page = (() => {
-if (!route.path) return <Home store={store} />;
-switch (route.path) {
-case "admin":
-if (!store.isAdmin()) return <div style={{ padding: 24 }}>No autorizado.</div>;
-if (route.rest[0] === "new") return <AdminCreate />;
-if (route.rest[0] === "sales") return <Sales />;
-if (route.rest[0] === "coupons") return <Coupons />;
-return <div style={{ padding: 24 }}>Panel no encontrado.</div>;
 
-case "search":
-return <Search store={store} queryFromNav={navQuery} />;
-case "product":
-return <Product store={store} id={route.rest[0]} />;
-case "cart":
-return <Cart store={store} />;
-case "shipping":
-return <Shipping store={store} />;
-case "payment":
-return <Payment store={store} />;
-case "about":
-return <About />;
-case "login":    
-return <Login />;
-case "register": 
-return <Register />;
-case "purchases":
-return <Purchases />;
-default:
-return <div style={{ padding: 24 }}>Página no encontrada.</div>;
-}
-})();
+    const page = (() => {
+        if (!route.path) return <Home store={store} />;
+        switch (route.path) {
+            case "admin":
+                if (!isAdmin) return <div style={{ padding: 24 }}>No autorizado.</div>;
+                if (route.rest[0] === "new") return <AdminCreate />;
+                if (route.rest[0] === "sales") return <Sales />;
+                if (route.rest[0] === "coupons") return <Coupons />;
+                return <div style={{ padding: 24 }}>Panel no encontrado.</div>;
+
+            case "search":
+                return <Search store={store} queryFromNav={navQuery} />;
+            case "product":
+                return <Product store={store} id={route.rest[0]} />;
+            case "cart":
+                return <Cart store={store} />;
+            case "payment":
+                return <Payment store={store} />;
+            case "about":
+                return <About />;
+            case "login":    
+                return <Login />;
+            case "register": 
+                return <Register />;
+            case "purchases":
+                return <Purchases />;
+            default:
+                return <div style={{ padding: 24 }}>Página no encontrada.</div>;
+        }
+    })();
 
 
-return (
-<div style={appBg}>
-    <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
-    <div style={{ paddingTop: 64 }}> 
-        {page}
-        <Footer />
+    return (
+    <div style={appBg}>
+        <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
+        <div style={{ paddingTop: 64 }}> 
+            {page}
+            <Footer />
+        </div>
     </div>
-</div>
-);
+    );
 }
