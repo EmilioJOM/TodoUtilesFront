@@ -209,9 +209,9 @@ export default function Nav({ onSearch, q }) {
                     zIndex: 1000,
                   }}
                 >
-                  <A to="#/account" style={{ display: "block", padding: "8px 10px" }}>
+                  {/* <A to="#/account" style={{ display: "block", padding: "8px 10px" }}>
                     Mi cuenta
-                  </A>
+                  </A> */}
                   <button
                     onClick={handleLogout}
                     role="menuitem"
