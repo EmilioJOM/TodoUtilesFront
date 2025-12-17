@@ -19,7 +19,8 @@ import "./App.css";
 import Purchases from "./pages/Purchases.jsx";
 import { useSelector } from "react-redux";
 import { selectIsAdmin } from "./redux/authSlice";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 export default function App() {
@@ -66,10 +67,22 @@ export default function App() {
     return (
     <div style={appBg}>
         <Nav onSearch={(v) => setNavQuery(v)} q={navQuery} />
-        <div style={{ paddingTop: 64 }}> 
-            {page}
-            <Footer />
+
+        <div style={{ paddingTop: 64 }}>
+        {page}
+        <Footer />
         </div>
+
+        {/* Toasts globales */}
+        <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        />
     </div>
     );
 }

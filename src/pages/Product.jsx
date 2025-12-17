@@ -1,34 +1,47 @@
-// src/pages/Product.jsx
 import { useEffect, useState } from "react";
 import Row from "../components/Row.jsx";
 import { wrap, card, input, button } from "../utils/styles.jsx";
 import { currency } from "../utils/Format.jsx";
-import { ProductsAPI } from "../api/index.jsx"; 
-import "./pagesStyles/Product.css"
+import { ProductsAPI } from "../api/index.jsx";
+import "./pagesStyles/Product.css";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProductImage,
+  selectImageByProduct,
+  selectImageLoading,
+  selectImageError,
+} from "../redux/imagenSlice";
+import { toast } from "react-toastify";
+import { selectIsAdmin, selectAuthStatus } from "../redux/authSlice";
 
 const Product = ({ store, id }) => {
-  const URL = `http://localhost:4002/api/productos/${id}`;
   const [product, setProduct] = useState();
   const [mainImage, setMainImage] = useState(0);
   const [qty, setQty] = useState(1);
 
-  
+  const isAdmin = useSelector(selectIsAdmin);
+  const authStatus = useSelector(selectAuthStatus); // opcional (por si querés esperar hydrate)
 
-  const isAdmin = store?.isAdmin?.() === true;
   const [deltaStock, setDeltaStock] = useState(0);
   const [savingStock, setSavingStock] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
-  // Cargar producto
+  const dispatch = useDispatch();
+  const imageUrl = useSelector(selectImageByProduct(id));
+  const imageLoading = useSelector(selectImageLoading);
+  const imageError = useSelector(selectImageError);
+
   useEffect(() => {
-    fetch(URL)
-      .then((r) => r.json())
+    ProductsAPI.getById(id)
       .then(setProduct)
       .catch((e) => console.error("Error:", e));
-  }, [id]);
+
+    dispatch(fetchProductImage({ productId: id }));
+  }, [id, dispatch]);
 
   if (!product) return <div style={{ ...wrap, marginTop: 24 }}>Producto no encontrado.</div>;
+
 
   // Nuevo: handlers admin
   async function applyStockDelta() {
@@ -55,7 +68,7 @@ const Product = ({ store, id }) => {
     try {
       setDeleting(true);
       await ProductsAPI.remove(product.id);
-      alert("Producto eliminado");
+      toast.success("Producto eliminado ✅");
       // Volver al listado
       window.location.hash = "#/search";
     } catch (e) {
@@ -70,17 +83,20 @@ const Product = ({ store, id }) => {
       <div style={{ ...card, padding: 16, minHeight: 340 }}>
         {/* Imagen grande */}
         <img
-          src={product.images?.length > 0 ? product.images[mainImage] : "public/imagenPlaceholder.jpg"}
+          src={imageUrl || "/imagenPlaceholder.jpg"}
           alt={product.description}
           style={{ height: 300, width: "100%", objectFit: "cover", borderRadius: 12 }}
         />
+
+        {imageLoading && <div style={{ marginTop: 8, fontSize: 13 }}>Cargando imagen…</div>}
+        {imageError && <div style={{ marginTop: 8, fontSize: 13, color: "#b91c1c" }}>{imageError}</div>}
         {/* Thumbnails */}
-        {product.images?.length > 1 && (
+        {/* {product.images?.length > 1 && (
           <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
             {product.images.slice(0, 3).map((img, idx) => (
               <img
                 key={idx}
-                src={img}
+                src={imageUrl || "/imagenPlaceholder.jpg"}
                 alt={`Miniatura ${idx + 1}`}
                 onClick={() => setMainImage(idx)}
                 style={{
@@ -90,7 +106,7 @@ const Product = ({ store, id }) => {
               />
             ))}
           </div>
-        )}
+        )} */}
       </div>
 
       <div style={{ ...card, padding: 16 }}>

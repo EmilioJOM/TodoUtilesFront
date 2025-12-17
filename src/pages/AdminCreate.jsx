@@ -6,6 +6,9 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { createCategory } from "../redux/categorySlice.js";
 import { createProduct } from "../redux/productSlice.js";
+import { uploadProductImage } from "../redux/imagenSlice";
+import { toast } from "react-toastify";
+
 
 export default function AdminCreate() { //TODAVIA NO ESTA 
   const dispatch=useDispatch()
@@ -60,12 +63,23 @@ export default function AdminCreate() { //TODAVIA NO ESTA
 
   function validateImage(f) {
     if (!f) return false;
+
     const okType = /^image\//.test(f.type);
     const okSize = f.size <= 10 * 1024 * 1024; // 10MB
-    if (!okType) { alert("El archivo debe ser una imagen"); return false; }
-    if (!okSize) { alert("La imagen no debe superar los 10MB"); return false; }
+
+    if (!okType) {
+      toast.error("El archivo debe ser una imagen");
+      return false;
+    }
+
+    if (!okSize) {
+      toast.error("La imagen no debe superar los 10MB");
+      return false;
+    }
+
     return true;
   }
+
 
   function openPicker() { fileInputRef.current?.click(); }
   function onPickFile(e) {
@@ -91,20 +105,25 @@ export default function AdminCreate() { //TODAVIA NO ESTA
 
   const createNewProduct = async () => {
     if (!form.name || !form.price || !form.stock || !form.extraInfo || !form.cat) {
-      alert("Completá nombre, descripcion, precio, stock y categoria");
+      toast.warning("Completá nombre, descripción, precio, stock y categoría");
       return;
     }
+
     const auxi = {
-        descripcion: form.name,                         
-        stock: parseInt(form.stock, 10) || 0,
-        price: parseFloat(form.price) || 0,
-        extraInfo: form.extraInfo,
-        category: form.cat
-      };
-    
-    dispatch(createProduct(auxi))
-    setForm({name: "", price:"",stock:"",extraInfo:"",cat:""})
-    }
+      descripcion: form.name,
+      stock: parseInt(form.stock, 10) || 0,
+      price: parseFloat(form.price) || 0,
+      extraInfo: form.extraInfo,
+      category: form.cat
+    };
+
+    dispatch(createProduct(auxi));
+    toast.success("Producto creado correctamente ✅");
+
+    setForm({ name: "", price: "", stock: "", extraInfo: "", cat: "" });
+  };
+
+
 
     
 /*     if (submittingProduct) return; 
@@ -147,12 +166,16 @@ export default function AdminCreate() { //TODAVIA NO ESTA
   //Para crear categorias nuevas
   const createNewCategory = async () => {
     if (!newCategory.description?.trim()) {
-      alert("El nombre de la categoría es obligatorio");
+      toast.error("El nombre de la categoría es obligatorio");
       return;
     }
-    dispatch(createCategory(newCategory))
+
+    dispatch(createCategory(newCategory));
+    toast.success("Categoría creada ✅");
+
     setNewCategory({ id: 1, description: "" });
   };
+
 
 
   //LO QUE SE VE EN PANTALLA

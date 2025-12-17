@@ -5,8 +5,11 @@ export const ProductsAPI = {
   getById(id) {
     return request(`/api/productos/${id}`);
   },
-  create({ descripcion, stock, price }) {
-    return request("/api/productos", { method: "POST", data: { descripcion, stock, price } });
+  create({ descripcion, stock, price, extraInfo, category }) {
+    return request("/api/productos", {
+      method: "POST",
+      data: { descripcion, stock, price, extraInfo, category },
+    });
   },
   remove(id) {
     return request(`/api/productos/${id}`, { method: "DELETE" });
@@ -32,6 +35,9 @@ export const ProductsAPI = {
     const fd = new FormData();
     fd.append("file", file);
     return request(`/api/productos/${id}/imagen`, { method: "POST", data: fd, isForm: true });
+  },
+  getImage({ id }) {
+    return request(`/api/productos/${id}/imagen`, { method: "GET" });
   },
 
   // Opción 2: usa el endpoint v2 con @RequestPart("file")

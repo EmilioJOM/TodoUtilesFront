@@ -5,6 +5,7 @@ import cartReducer from "./cartSlice";
 import authReducer from "./authSlice";
 import checkoutReducer from "./checkoutSlice";
 import couponsReducer from "./couponsSlice";
+import imagenReducer from "./imagenSlice";
 
 
 export const store = configureStore({
@@ -14,7 +15,8 @@ export const store = configureStore({
         cart: cartReducer,
         auth: authReducer,
         coupons: couponsReducer,
-        checkout: checkoutReducer,       
+        checkout: checkoutReducer,
+        imagen: imagenReducer
     } //aca se guardan todos los estados globales
 
 })
